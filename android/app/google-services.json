@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1038168837342",
+    "project_id": "lf-crystal",
+    "storage_bucket": "lf-crystal.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1038168837342:android:80d2ab966dc6ffae8d464f",
+        "android_client_info": {
+          "package_name": "com.liasesforas.crystal"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC3JLuWt_nQiymYrVIGuvd520-qOiLqqaE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
