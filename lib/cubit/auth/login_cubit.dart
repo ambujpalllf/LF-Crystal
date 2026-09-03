@@ -47,8 +47,7 @@ class LoginCubit extends Cubit<LoginState> {
         return;
       }
       LocationData position = await CheckLocationPermission.getCurrentLocation();
-
-      String firebaseToken = await NotificationServices().getDeviceToken();
+      String firebaseToken = await NotificationServices.instance.getDeviceToken();
       final url = "${ApiUrls.baseUrl}/MobLogin";
       Map<String, dynamic> deviceInfo = await getDeviceInfo();
       final jsonInfo = jsonEncode(deviceInfo);
@@ -131,35 +130,13 @@ class LoginCubit extends Cubit<LoginState> {
     if (Platform.isAndroid) {
       final AndroidDeviceInfo android = await deviceInfo.androidInfo;
 
-      return {
-        "platform": "Android",
-        "brand": android.brand,
-        "model": android.model,
-        "device": android.device,
-        "manufacturer": android.manufacturer,
-        "product": android.product,
-        "androidVersion": android.version.release,
-        "sdkInt": android.version.sdkInt,
-        "board": android.board,
-        "hardware": android.hardware,
-        "isPhysicalDevice": android.isPhysicalDevice,
-        "id": android.id,
-      };
+      return {"platform": "Android", "brand": android.brand, "model": android.model, "device": android.device, "manufacturer": android.manufacturer, "product": android.product, "androidVersion": android.version.release, "sdkInt": android.version.sdkInt, "board": android.board, "hardware": android.hardware, "isPhysicalDevice": android.isPhysicalDevice, "id": android.id};
     }
 
     if (Platform.isIOS) {
       final IosDeviceInfo ios = await deviceInfo.iosInfo;
 
-      return {
-        "platform": "iOS",
-        "name": ios.name,
-        "model": ios.model,
-        "localizedModel": ios.localizedModel,
-        "systemName": ios.systemName,
-        "systemVersion": ios.systemVersion,
-        "identifierForVendor": ios.identifierForVendor,
-        "isPhysicalDevice": ios.isPhysicalDevice,
-      };
+      return {"platform": "iOS", "name": ios.name, "model": ios.model, "localizedModel": ios.localizedModel, "systemName": ios.systemName, "systemVersion": ios.systemVersion, "identifierForVendor": ios.identifierForVendor, "isPhysicalDevice": ios.isPhysicalDevice};
     }
 
     return {"platform": "Unknown"};

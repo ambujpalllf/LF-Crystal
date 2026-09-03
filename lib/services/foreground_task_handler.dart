@@ -101,12 +101,7 @@ class ForegroundTaskHandler {
     if (await FlutterForegroundTask.isRunningService) {
       return FlutterForegroundTask.restartService();
     } else {
-      return FlutterForegroundTask.startService(
-        serviceTypes: [ForegroundServiceTypes.location],
-        notificationTitle: 'LiasesForas',
-        notificationText: 'Liasesforas service running',
-        callback: startCallback,
-      );
+      return FlutterForegroundTask.startService(serviceTypes: [ForegroundServiceTypes.location], notificationTitle: 'LiasesForas', notificationText: 'Liasesforas service running', callback: startCallback);
     }
   }
 
@@ -163,6 +158,8 @@ class ForegroundTaskHandler {
                   if (!context.mounted) return;
                   // Still denied → open settings
                   await showSettingsDialog(context);
+                } else {
+                  await ForegroundTaskHandler.startService();
                 }
               },
             ),

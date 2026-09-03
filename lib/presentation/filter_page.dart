@@ -15,14 +15,7 @@ class FilterPage extends StatefulWidget {
 }
 
 class _FilterPageState extends State<FilterPage> {
-  final List<String> options = [
-    'Assign Case DateWise Old to Latest',
-    'Assign Case DateWise Latest to Old',
-    'Completed Case DateWise Old to Latest',
-    'Completed Case DateWise Latest to Old',
-    'Appointment DateWise Old to Latest',
-    'Appointment DateWise Latest to Old',
-  ];
+  final List<String> options = ['Assign Case DateWise Old to Latest', 'Assign Case DateWise Latest to Old', 'Completed Case DateWise Old to Latest', 'Completed Case DateWise Latest to Old', 'Appointment DateWise Old to Latest', 'Appointment DateWise Latest to Old'];
 
   final TextEditingController _bankNameController = TextEditingController();
 
@@ -43,18 +36,10 @@ class _FilterPageState extends State<FilterPage> {
   @override
   Widget build(BuildContext context) {
     debugPrint("Build Build");
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          leading: IconButton(
-            onPressed: () => Navigator.pop(context, null),
-            icon: Icon(Icons.arrow_back, color: AppColors.white),
-          ),
-          backgroundColor: AppColors.blue,
-          title: Text("Apply Filter", style: AppTextStyle.ts18RW),
-        ),
-        body: Padding(
+    return Scaffold(
+      appBar: AppBar(automaticallyImplyLeading: false, leading: IconButton(onPressed: () => Navigator.pop(context, null), icon: Icon(Icons.arrow_back, color: AppColors.white)), backgroundColor: AppColors.blue, title: Text("Apply Filter", style: AppTextStyle.ts18RW)),
+      body: SafeArea(
+        child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,47 +77,23 @@ class _FilterPageState extends State<FilterPage> {
                     children: [
                       InkWell(
                         onTap: () async {
-                          final DateTime? picked = await showDatePicker(
-                            context: context,
-                            initialDate: fromDate,
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime.now(),
-                          );
+                          final DateTime? picked = await showDatePicker(context: context, initialDate: fromDate, firstDate: DateTime(2000), lastDate: DateTime.now());
                           if (picked != null && picked != fromDate) {
                             if (!context.mounted) return;
                             context.read<FilterCubit>().selectFromDate(picked);
                           }
                         },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                          decoration: BoxDecoration(color: AppColors.blue),
-                          child: Text(
-                            fromDate == null ? "From Date" : DateFormat('dd MMMM yyyy').format(fromDate!),
-                            style: AppTextStyle.ts14RW,
-                          ),
-                        ),
+                        child: Container(padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0), decoration: BoxDecoration(color: AppColors.blue), child: Text(fromDate == null ? "From Date" : DateFormat('dd MMMM yyyy').format(fromDate!), style: AppTextStyle.ts14RW)),
                       ),
                       InkWell(
                         onTap: () async {
-                          final DateTime? picked = await showDatePicker(
-                            context: context,
-                            initialDate: toDate,
-                            firstDate: DateTime.now(),
-                            lastDate: DateTime(2070),
-                          );
+                          final DateTime? picked = await showDatePicker(context: context, initialDate: toDate, firstDate: DateTime.now(), lastDate: DateTime(2070));
                           if (picked != null && picked != toDate) {
                             if (!context.mounted) return;
                             context.read<FilterCubit>().selectToDate(picked);
                           }
                         },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                          decoration: BoxDecoration(color: AppColors.blue),
-                          child: Text(
-                            toDate == null ? "To Date" : DateFormat('dd MMMM yyyy').format(toDate!),
-                            style: AppTextStyle.ts14RW,
-                          ),
-                        ),
+                        child: Container(padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0), decoration: BoxDecoration(color: AppColors.blue), child: Text(toDate == null ? "To Date" : DateFormat('dd MMMM yyyy').format(toDate!), style: AppTextStyle.ts14RW)),
                       ),
                     ],
                   );
@@ -144,12 +105,7 @@ class _FilterPageState extends State<FilterPage> {
               TextFormField(
                 controller: _bankNameController,
                 cursorColor: AppColors.calenderColor,
-                decoration: InputDecoration(
-                  hintText: "Bank Name",
-                  hintStyle: AppTextStyle.ts14LB.copyWith(color: AppColors.grey),
-                  enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.calenderColor)),
-                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.calenderColor)),
-                ),
+                decoration: InputDecoration(hintText: "Bank Name", hintStyle: AppTextStyle.ts14LB.copyWith(color: AppColors.grey), enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.calenderColor)), focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.calenderColor))),
               ),
 
               const SizedBox(height: 15),
@@ -202,13 +158,7 @@ class _FilterPageState extends State<FilterPage> {
                     Navigator.pop(context);
                   }),
                   _buildButton(context, "APPLY FILTER", () {
-                    Map<String, dynamic> filterData = {
-                      "appointment": todayAppointment,
-                      "fromDate": fromDate,
-                      "toDate": toDate,
-                      "bankName": _bankNameController.text,
-                      "sortBy": sortOption,
-                    };
+                    Map<String, dynamic> filterData = {"appointment": todayAppointment, "fromDate": fromDate, "toDate": toDate, "bankName": _bankNameController.text, "sortBy": sortOption};
                     Navigator.pop(context, filterData);
                   }),
                 ],
@@ -223,9 +173,6 @@ class _FilterPageState extends State<FilterPage> {
   }
 
   Widget _buildButton(BuildContext context, String text, VoidCallback onPressed) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width * 0.4,
-      child: CustomElevatedButton(textStyle: AppTextStyle.ts14BW, borderRadius: 2.0, text: text, onPressed: onPressed),
-    );
+    return SizedBox(width: MediaQuery.of(context).size.width * 0.4, child: CustomElevatedButton(textStyle: AppTextStyle.ts14BW, borderRadius: 2.0, text: text, onPressed: onPressed));
   }
 }

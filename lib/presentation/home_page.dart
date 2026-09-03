@@ -15,7 +15,7 @@ import 'package:lf_crystal/presentation/filter_page.dart';
 import 'package:lf_crystal/presentation/image_list_page.dart';
 import 'package:lf_crystal/routes/app_routes_name.dart';
 import 'package:lf_crystal/services/foreground_task_handler.dart';
-import 'package:lf_crystal/services/notification_services.dart';
+import 'package:lf_crystal/services/work_manager.dart';
 import 'package:lf_crystal/services/work_manager_task_register.dart';
 import 'package:lf_crystal/widget/custom_alert_dialog.dart';
 import 'package:lf_crystal/widget/custom_textform_field.dart';
@@ -29,7 +29,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
-  NotificationServices notificationServices = NotificationServices();
   late TabController _tabController;
   Map<String, dynamic>? response;
   TextEditingController searchC = TextEditingController();
@@ -48,15 +47,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       WidgetsBinding.instance.addPostFrameCallback((_) {
         WorkManagerTaskRegister.syncLocation();
         ForegroundTaskHandler.foregroundServiceInit(context);
+        // syncLocation();
       });
     }
-    initializeFirebaseMessaging();
-  }
-
-  void initializeFirebaseMessaging() {
-    notificationServices.foregroundMessage();
-    notificationServices.firebaseInit(context);
-    notificationServices.setUpInteractMessage(context);
+    Future.delayed(Duration(seconds: 1), () {
+      syncLocation();
+    });
   }
 
   @override
@@ -126,10 +122,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     PopupMenuItem<String>(
                       value: "Image Sync",
                       onTap: () async {
-                        bool response = await Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => ImageListPage(siteId: 0)),
-                        );
+                        bool response = await Navigator.push(context, MaterialPageRoute(builder: (_) => ImageListPage(siteId: 0)));
                         if (response == true) {
                           if (!context.mounted) return;
                           context.read<CustomCardCubit>().fetchDataWithDB();
@@ -164,37 +157,21 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           if (siteEng == null || valuerId == null) {
                             // throw Exception("Missing required IDs.");
                             if (!context.mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                backgroundColor: Colors.red,
-                                content: Text("Missing required IDs.", style: TextStyle(color: Colors.white)),
-                              ),
-                            );
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text("Missing required IDs.", style: TextStyle(color: Colors.white))));
                           }
-                          String url =
-                              "https://valuation.liasesforas.com/Report/siteEngineer?site_eng_id=$siteEng&valuer_id=$valuerId";
+                          String url = "https://valuation.liasesforas.com/Report/siteEngineer?site_eng_id=$siteEng&valuer_id=$valuerId";
                           final uri = Uri.parse(url);
                           if (await canLaunchUrl(uri)) {
                             await launchUrl(uri, mode: LaunchMode.inAppWebView);
                           } else {
                             // throw Exception("Could not launch URL.");
                             if (!context.mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                backgroundColor: Colors.red,
-                                content: Text("Could not launch URL.", style: TextStyle(color: Colors.white)),
-                              ),
-                            );
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text("Could not launch URL.", style: TextStyle(color: Colors.white))));
                           }
                         } catch (e) {
                           String errorMsg = e.toString().split(":").last;
                           if (!context.mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              backgroundColor: Colors.red,
-                              content: Text(errorMsg, style: TextStyle(color: Colors.white)),
-                            ),
-                          );
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text(errorMsg, style: TextStyle(color: Colors.white))));
                         }
                       },
                       child: Text("Report", style: AppTextStyle.ts14LB),
@@ -235,10 +212,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     decoration: BoxDecoration(color: AppColors.black),
                     child: TabBar(
                       controller: _tabController,
-                      indicator: UnderlineTabIndicator(
-                        borderSide: BorderSide(width: 4.0, color: AppColors.blue),
-                        insets: EdgeInsets.symmetric(horizontal: width * 0.35),
-                      ),
+                      indicator: UnderlineTabIndicator(borderSide: BorderSide(width: 4.0, color: AppColors.blue), insets: EdgeInsets.symmetric(horizontal: width * 0.35)),
                       indicatorColor: AppColors.blue,
                       labelColor: AppColors.white,
                       unselectedLabelColor: AppColors.white,
@@ -269,12 +243,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       ),
                     ),
                   ),
-                  Expanded(
-                    child: TabBarView(
-                      controller: _tabController,
-                      children: [CustomCardWidget(tabIndex: 0), CustomCardWidget(tabIndex: 1)],
-                    ),
-                  ),
+                  Expanded(child: TabBarView(controller: _tabController, children: [CustomCardWidget(tabIndex: 0), CustomCardWidget(tabIndex: 1)])),
                 ],
               ),
             ),
@@ -286,12 +255,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           showDialog(
             context: context,
             builder: (context) {
-              return AlertDialog(
-                shape: RoundedRectangleBorder(),
-                content: Row(
-                  children: [CircularProgressIndicator(), SizedBox(width: 10), Expanded(child: Text("Loading..."))],
-                ),
-              );
+              return AlertDialog(shape: RoundedRectangleBorder(), content: Row(children: [CircularProgressIndicator(), SizedBox(width: 10), Expanded(child: Text("Loading..."))]));
             },
           );
         } else if (state is DownLoadedState) {
@@ -300,12 +264,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           showDialog(
             context: context,
             builder: (context) {
-              return CustomAlertDialog(
-                title: "",
-                content: "${state.messase} Case Downloaded.",
-                confirmText: "OK",
-                onConfirm: () {},
-              );
+              return CustomAlertDialog(title: "", content: "${state.messase} Case Downloaded.", confirmText: "OK", onConfirm: () {});
             },
           );
         } else if (state is DownLoadedErrorState) {

@@ -80,12 +80,7 @@ class Utils {
   // }
 
   // date pick function
-  static Future<DateTime?> showCustomDatePicker({
-    required BuildContext context,
-    required DateTime initialDate,
-    DateTime? firstDate,
-    DateTime? lastDate,
-  }) async {
+  static Future<DateTime?> showCustomDatePicker({required BuildContext context, required DateTime initialDate, DateTime? firstDate, DateTime? lastDate}) async {
     DateTime tempSelectedDate = initialDate;
 
     return showModalBottomSheet<DateTime>(
@@ -214,13 +209,7 @@ class Utils {
     File? result;
 
     while (quality > 10) {
-      var compressedFile = await FlutterImageCompress.compressAndGetFile(
-        file.absolute.path,
-        targetPath,
-        quality: quality,
-        minHeight: 1280,
-        minWidth: 1280,
-      );
+      var compressedFile = await FlutterImageCompress.compressAndGetFile(file.absolute.path, targetPath, quality: quality, minHeight: 1280, minWidth: 1280);
 
       if (compressedFile == null) return null;
 
@@ -271,12 +260,7 @@ class Utils {
 
   //   return file;
   // }
-  static Future<File> compressIfNeeded(
-    File file, {
-    int maxSizeKB = 400,
-    int maxWidth = 1280,
-    int maxHeight = 1280,
-  }) async {
+  static Future<File> compressIfNeeded(File file, {int maxSizeKB = 400, int maxWidth = 1280, int maxHeight = 1280}) async {
     try {
       final originalPath = file.path;
 
@@ -285,13 +269,7 @@ class Utils {
 
       // Try compressing until size is acceptable
       while (quality >= 30) {
-        compressed = await FlutterImageCompress.compressWithFile(
-          originalPath,
-          quality: quality,
-          minWidth: maxWidth,
-          minHeight: maxHeight,
-          format: CompressFormat.jpeg,
-        );
+        compressed = await FlutterImageCompress.compressWithFile(originalPath, quality: quality, minWidth: maxWidth, minHeight: maxHeight, format: CompressFormat.jpeg);
 
         if (compressed == null) break;
 
@@ -316,16 +294,7 @@ class Utils {
     }
   }
 
-  static Future<File> addMetadataToImage({
-    required File imageFile,
-    required double latitude,
-    required double longitude,
-    required double accuracy,
-    required DateTime timestamp,
-    required String imageTitle,
-    required String imageSubTitle,
-    String notes = "",
-  }) async {
+  static Future<File> addMetadataToImage({required File imageFile, required double latitude, required double longitude, required double accuracy, required DateTime timestamp, required String imageTitle, required String imageSubTitle, String notes = ""}) async {
     ///  Read image
     final originalBytes = await imageFile.readAsBytes();
     final originalImage = img.decodeImage(originalBytes);
@@ -367,14 +336,7 @@ class Utils {
     ///  Draw background
     const paddingX = 10;
     const paddingY = 6;
-    img.fillRect(
-      originalImage,
-      x1: leftPadding - paddingX,
-      y1: yStart - paddingY,
-      x2: leftPadding + maxLineWidth + paddingX,
-      y2: yStart + totalTextHeight + paddingY,
-      color: img.ColorRgba8(0, 0, 0, 30),
-    );
+    img.fillRect(originalImage, x1: leftPadding - paddingX, y1: yStart - paddingY, x2: leftPadding + maxLineWidth + paddingX, y2: yStart + totalTextHeight + paddingY, color: img.ColorRgba8(0, 0, 0, 30));
 
     ///  Draw text
     img.drawString(originalImage, text, font: font, x: leftPadding, y: yStart, color: img.ColorRgb8(255, 255, 255));
@@ -525,16 +487,7 @@ class Utils {
   //   }
   // }
 
-  static Future<File> addMetadataWithCanvas({
-    required File imageFile,
-    required double latitude,
-    required double longitude,
-    required double accuracy,
-    required DateTime timestamp,
-    required String imageTitle,
-    required String imageSubTitle,
-    String notes = "",
-  }) async {
+  static Future<File> addMetadataWithCanvas({required File imageFile, required double latitude, required double longitude, required double accuracy, required DateTime timestamp, required String imageTitle, required String imageSubTitle, String notes = ""}) async {
     try {
       /// 1. Decode + resize to max 1280
       final bytes = await imageFile.readAsBytes();
@@ -627,13 +580,7 @@ class Utils {
       Uint8List? compressed;
 
       while (quality >= 40) {
-        compressed = await FlutterImageCompress.compressWithFile(
-          tempFile.path,
-          quality: quality,
-          minWidth: 1280,
-          minHeight: 1280,
-          format: CompressFormat.jpeg,
-        );
+        compressed = await FlutterImageCompress.compressWithFile(tempFile.path, quality: quality, minWidth: 1280, minHeight: 1280, format: CompressFormat.jpeg);
 
         if (compressed == null) break;
 
@@ -765,14 +712,7 @@ class Utils {
     final rectHeight = totalTextHeight + (paddingY);
 
     final watermarkColor = img.ColorRgba8(0, 0, 0, 25); // black  opacity
-    img.fillRect(
-      originalImage,
-      x1: rectX,
-      y1: rectY,
-      x2: (rectX + rectWidth).toInt(),
-      y2: rectY + rectHeight,
-      color: watermarkColor,
-    );
+    img.fillRect(originalImage, x1: rectX, y1: rectY, x2: (rectX + rectWidth).toInt(), y2: rectY + rectHeight, color: watermarkColor);
 
     // Draw the white text on top of the background
     img.drawString(originalImage, text, font: font, x: leftPadding, y: yStart, color: textColor);
@@ -868,13 +808,7 @@ class Utils {
         throw Exception("Survey data not found for site ID $siteId");
       }
 
-      final Map<String, dynamic> jsonStrPayload = {
-        "site_id": siteId,
-        "init_id": initId,
-        "site_engineer_id": siteEngId,
-        "created_by": userId,
-        "fieldJsonStr": updatedFieldJsonStr,
-      };
+      final Map<String, dynamic> jsonStrPayload = {"site_id": siteId, "init_id": initId, "site_engineer_id": siteEngId, "created_by": userId, "fieldJsonStr": updatedFieldJsonStr};
       final Map<String, dynamic> bodyData = {"lookup": "SITE_ENG_FINAL_SUBMIT", "json_str": jsonEncode(jsonStrPayload)};
       final response = await ApiServices.postRequestWithAuth(url, bodyData);
       logFullText("Body submitted data: ${jsonEncode(bodyData)}");

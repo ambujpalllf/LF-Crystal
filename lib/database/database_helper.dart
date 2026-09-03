@@ -117,13 +117,7 @@ class DBHelper {
         final mergedHomeData = mergeHomeData(existingHomeData, newHomeData);
 
         final updatedJsonString = jsonEncode(mergedHomeData.toJson());
-        final updated = await db.update(
-          'home_data',
-          {'json': updatedJsonString},
-          where: 'id = ?',
-          whereArgs: [1],
-          conflictAlgorithm: ConflictAlgorithm.replace,
-        );
+        final updated = await db.update('home_data', {'json': updatedJsonString}, where: 'id = ?', whereArgs: [1], conflictAlgorithm: ConflictAlgorithm.replace);
         debugPrint('Rows updated: $updated');
         return 1;
       } else {
@@ -146,9 +140,7 @@ class DBHelper {
     for (var newDetail in incoming.surveyDetails ?? []) {
       final newSiteId = newDetail.basicDetails?.siteId;
 
-      final alreadyExists = mergedSurveyDetails.any(
-        (existingDetail) => existingDetail.basicDetails?.siteId == newSiteId,
-      );
+      final alreadyExists = mergedSurveyDetails.any((existingDetail) => existingDetail.basicDetails?.siteId == newSiteId);
 
       if (!alreadyExists) {
         mergedSurveyDetails.add(newDetail);
@@ -221,13 +213,7 @@ class DBHelper {
       }
 
       // Proceed with update
-      int updated = await db.update(
-        'home_data',
-        {'json': jsonString},
-        where: 'id = ?',
-        whereArgs: [1],
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+      int updated = await db.update('home_data', {'json': jsonString}, where: 'id = ?', whereArgs: [1], conflictAlgorithm: ConflictAlgorithm.replace);
 
       debugPrint('Rows updated: $updated');
 
@@ -328,12 +314,7 @@ class DBHelper {
     for (var cat in categories) {
       final subCats = await db.query('sub_categories', where: 'category_id = ?', whereArgs: [cat['id']]);
 
-      categoryList.add(
-        CategoryDatum(
-          categoryType: cat['category_type'] as String?,
-          subCategory: subCats.map((sub) => SubCategory(subCategoryType: sub['sub_category_type'] as String?)).toList(),
-        ),
-      );
+      categoryList.add(CategoryDatum(categoryType: cat['category_type'] as String?, subCategory: subCats.map((sub) => SubCategory(subCategoryType: sub['sub_category_type'] as String?)).toList()));
     }
 
     return categoryList;
@@ -372,13 +353,7 @@ class DBHelper {
     final batch = db.batch();
 
     for (final image in images) {
-      batch.update(
-        'photos',
-        image.toMap(),
-        where: 'id = ?',
-        whereArgs: [image.id],
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+      batch.update('photos', image.toMap(), where: 'id = ?', whereArgs: [image.id], conflictAlgorithm: ConflictAlgorithm.replace);
     }
 
     await batch.commit(noResult: true);
@@ -395,23 +370,14 @@ class DBHelper {
 
   static Future<ImageEntity?> getImgByPath({required int siteId, required String imgPath}) async {
     final db = await database;
-    final maps = await db.query(
-      'photos',
-      where: 'siteId = ? AND imagePath = ?',
-      whereArgs: [siteId, imgPath],
-      limit: 1,
-    );
+    final maps = await db.query('photos', where: 'siteId = ? AND imagePath = ?', whereArgs: [siteId, imgPath], limit: 1);
     if (maps.isEmpty) return null;
     return ImageEntity.fromMap(maps.first);
   }
 
   static Future<List<ImageEntity>> getUnsyncImgBySiteId(int siteId) async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'photos',
-      where: 'siteId = ? AND sync = ?',
-      whereArgs: [siteId, 0],
-    );
+    final List<Map<String, dynamic>> maps = await db.query('photos', where: 'siteId = ? AND sync = ?', whereArgs: [siteId, 0]);
 
     return List.generate(maps.length, (i) {
       return ImageEntity.fromMap(maps[i]);
@@ -420,11 +386,7 @@ class DBHelper {
 
   static Future<List<ImageEntity>> getSelfie(int siteId) async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'photos',
-      where: 'siteId = ? AND selectedCategoryTitle = ?',
-      whereArgs: [siteId, "Selfie"],
-    );
+    final List<Map<String, dynamic>> maps = await db.query('photos', where: 'siteId = ? AND selectedCategoryTitle = ?', whereArgs: [siteId, "Selfie"]);
 
     return List.generate(maps.length, (i) {
       return ImageEntity.fromMap(maps[i]);

@@ -8,6 +8,7 @@ import 'package:lf_crystal/constants/storage_key.dart';
 import 'package:lf_crystal/cubit/auth/login_cubit.dart';
 import 'package:lf_crystal/cubit/auth/login_state.dart';
 import 'package:lf_crystal/routes/app_routes_name.dart';
+import 'package:lf_crystal/services/notification_services.dart';
 import 'package:location/location.dart';
 
 class LoginPage extends StatefulWidget {
@@ -18,6 +19,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final NotificationServices notificationServices = NotificationServices.instance;
   TextEditingController userNameC = TextEditingController();
   TextEditingController passwordC = TextEditingController();
   LocationData? locationData;
@@ -25,8 +27,45 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      checkLoginStatus();
+      // checkLoginStatus();
+      _initializeApp();
     });
+  }
+
+  Future<void> _initializeApp() async {
+    if (!mounted) {
+      return;
+    }
+    try {
+      // --------------------------------------------------------
+      // 1. Initialize Firebase Notifications FIRST
+      // --------------------------------------------------------
+      await checkLoginStatus();
+      // await initializeFirebaseMessaging();
+
+      if (!mounted) return;
+
+      // Give Android a little time to finish any notification
+      // permission/lifecycle transition.
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      if (!mounted) return;
+
+      // --------------------------------------------------------
+      // 2. Check Login Status SECOND
+      // --------------------------------------------------------
+
+      // await checkLoginStatus();
+      await initializeFirebaseMessaging();
+    } catch (e, stackTrace) {
+      debugPrint('Login page initialization error: $e');
+
+      debugPrint('$stackTrace');
+    }
+  }
+
+  Future<void> initializeFirebaseMessaging() async {
+    await notificationServices.initialize(context);
   }
 
   Future<void> checkLoginStatus() async {
@@ -69,9 +108,7 @@ class _LoginPageState extends State<LoginPage> {
             child: BlocConsumer<LoginCubit, LoginState>(
               listener: (context, state) {
                 if (state is LoginErrorState) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(backgroundColor: AppColors.red, content: Text(state.message, style: AppTextStyle.ts14BW)),
-                  );
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: AppColors.red, content: Text(state.message, style: AppTextStyle.ts14BW)));
                   if (state.message.toLowerCase() == "unable to fetch location.") {
                     locationData = null;
                   }
@@ -123,10 +160,7 @@ class _LoginPageState extends State<LoginPage> {
                             contentPadding: const EdgeInsets.only(top: 15),
                             prefixIcon: Icon(Icons.lock_outline, color: AppColors.white),
                             suffixIcon: IconButton(
-                              icon: Icon(
-                                isPasswordVisible ? Icons.visibility_off : Icons.visibility,
-                                color: AppColors.white,
-                              ),
+                              icon: Icon(isPasswordVisible ? Icons.visibility_off : Icons.visibility, color: AppColors.white),
                               onPressed: () {
                                 context.read<LoginCubit>().showPassword(isPasswordVisible);
                               },
@@ -144,16 +178,9 @@ class _LoginPageState extends State<LoginPage> {
                         SizedBox(
                           width: width * 0.6,
                           child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.blue,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                            ),
+                            style: ElevatedButton.styleFrom(backgroundColor: AppColors.blue, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
                             onPressed: () {
-                              context.read<LoginCubit>().submitMethod(
-                                userName: userNameC.text,
-                                password: passwordC.text,
-                                context: context,
-                              );
+                              context.read<LoginCubit>().submitMethod(userName: userNameC.text, password: passwordC.text, context: context);
                             },
                             child:
                                 state is LoginLoadingState

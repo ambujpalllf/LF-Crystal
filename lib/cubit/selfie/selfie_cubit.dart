@@ -29,12 +29,7 @@ class SelfieCubit extends Cubit<SelfieState> {
     }
   }
 
-  void takePicture({
-    required int siteId,
-    required String imageSubTitle,
-    required int index,
-    required BuildContext context,
-  }) async {
+  void takePicture({required int siteId, required String imageSubTitle, required int index, required BuildContext context}) async {
     emit(SelfieRefreshState(index: index));
     if (_isPicking) return; // prevent multiple calls
     _isPicking = true;
@@ -104,15 +99,7 @@ class SelfieCubit extends Cubit<SelfieState> {
 
       // // Process metadata in isolate
       // final newPath = await Isolate.run(() => Utils.addMetadataIsolate(params));
-      final newPath = await Utils.addMetadataWithCanvas(
-        imageFile: imagePath,
-        latitude: position.latitude ?? 0.0,
-        longitude: position.longitude ?? 0.0,
-        accuracy: position.accuracy ?? 0.0,
-        timestamp: now,
-        imageTitle: "Selfie",
-        imageSubTitle: imageSubTitle,
-      );
+      final newPath = await Utils.addMetadataWithCanvas(imageFile: imagePath, latitude: position.latitude ?? 0.0, longitude: position.longitude ?? 0.0, accuracy: position.accuracy ?? 0.0, timestamp: now, imageTitle: "Selfie", imageSubTitle: imageSubTitle);
 
       ImageEntity newImageData = imageData.copyWith(imagePath: newPath.path);
       emit(SelfiePickedState(selfie: newImageData, isProcessed: false, index: index));
@@ -152,11 +139,7 @@ class SelfieCubit extends Cubit<SelfieState> {
     }
   }
 
-  Future<void> updateSerialOrder({
-    required ImageEntity imgData,
-    required List<ImageEntity> images,
-    required String serialOrder,
-  }) async {
+  Future<void> updateSerialOrder({required ImageEntity imgData, required List<ImageEntity> images, required String serialOrder}) async {
     try {
       final url = "${ApiUrls.baseUrl}/${ApiUrls.updateSerialOrder}";
       final int? serialNumber = int.tryParse(serialOrder);
