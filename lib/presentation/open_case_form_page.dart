@@ -34,11 +34,42 @@ class OpenCaseFormPage extends StatefulWidget {
 }
 
 class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
-  late List<TextEditingController?> textBoxC;
-  late List<TextEditingController?> textAreaC;
-  late List<String?> dropdownValues;
-  late List<List<String>?> multiDropdownValues;
-  late List<TextEditingController?> dateControllers;
+  double sumTotalArea = 0.0;
+  List<TextEditingController?> textBoxC = [];
+  List<TextEditingController?> textAreaC = [];
+  List<String?> dropdownValues = [];
+  List<List<String>?> multiDropdownValues = [];
+  List<TextEditingController?> dateControllers = [];
+
+  // Holds the "Sum of Area" text for each JSONTABLE field (e.g. MEASUREMENT_DETAILS),
+  // populated once the user returns from the room-details screen — mirrors mSumOfArea
+  // in the Kotlin SurveyFragment.
+  List<String?> jsonTableSumOfArea = [];
+
+  // Guard so initFileds() only runs once per successful load instead
+  // of on every build() call — otherwise every rebuild wipes out whatever
+  // the user has already typed.
+  bool _fieldsInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<OpenCaseCubit>().fetchOpenCaseBySiteId(widget.siteId);
+  }
+
+  @override
+  void dispose() {
+    for (final c in textBoxC) {
+      c?.dispose();
+    }
+    for (final c in textAreaC) {
+      c?.dispose();
+    }
+    for (final c in dateControllers) {
+      c?.dispose();
+    }
+    super.dispose();
+  }
 
   void initFileds(List<Field> fields) {
     textBoxC =
@@ -88,6 +119,16 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
           }
           return null;
         }).toList();
+
+    jsonTableSumOfArea =
+        fields.map((itemData) {
+          if (itemData.type == "JSONTABLE") {
+            return "";
+          }
+          return null;
+        }).toList();
+
+    _fieldsInitialized = true;
   }
 
   TextInputType _getKeyboardType(String? dataType) {
@@ -136,7 +177,14 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
             if (state is OpenCaseLoadingState) {
               return Center(child: CircularProgressIndicator());
             } else if (state is OpenCaseLoadedState) {
-              initFileds(state.fields);
+              // Only build controllers the first time this state
+              // arrives, not on every rebuild.
+              if (!_fieldsInitialized) {
+                initFileds(state.fields);
+              }
+
+              final latIndex = state.fields.indexWhere((item) => item.label == "Latitude *");
+              final lngIndex = state.fields.indexWhere((item) => item.label == "Longitude *");
 
               return Stack(
                 children: [
@@ -154,8 +202,6 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                   shrinkWrap: true,
                                   itemCount: state.fields.length,
                                   itemBuilder: (context, index) {
-                                    final latIndex = state.fields.indexWhere((item) => item.label == "Latitude *");
-                                    final lngIndex = state.fields.indexWhere((item) => item.label == "Longitude *");
                                     var itemData = state.fields[index];
                                     List<SpinnerMaster> dropdownList = [];
                                     List<String> multiDropdownItems = [];
@@ -165,7 +211,12 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                     if (itemData.type == "MULTISELECT") {
                                       List<SpinnerMaster> options = state.spinnerMaster[itemData.name] ?? [];
 
-                                      multiDropdownItems = options.map((e) => e.value!).toList();
+                                      multiDropdownItems =
+                                          options
+                                              .map((e) => e.value)
+                                              .whereType<String>()
+                                              .where((v) => v.isNotEmpty)
+                                              .toList();
                                     }
 
                                     return Padding(
@@ -176,29 +227,28 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                               ? (itemData.label == "Latitude *" || itemData.label == "Longitude *")
                                                   ? InkWell(
                                                     onLongPress: () async {
-                                                      // bool permission = await Utils.checkLGpsRequestPermission();
+                                                      // guard against the labels not being
+                                                      // found (indexWhere == -1) before indexing.
+                                                      if (latIndex == -1 || lngIndex == -1) return;
+
                                                       bool permission =
                                                           await CheckLocationPermission.checkPermissionGps(
                                                             context: context,
                                                           );
 
                                                       if (permission) {
-                                                        // var location = await Utils.getCurrentLocation();
                                                         var location =
                                                             await CheckLocationPermission.getCurrentLocation();
                                                         final latText = location.latitude.toString();
                                                         final lngText = location.longitude.toString();
 
-                                                        textBoxC[latIndex]!.text = latText;
-                                                        textBoxC[lngIndex]!.text = lngText;
-
-                                                        state.fields[latIndex].value = latText;
-                                                        state.fields[lngIndex].value = lngText;
+                                                        setState(() {
+                                                          textBoxC[latIndex]!.text = latText;
+                                                          textBoxC[lngIndex]!.text = lngText;
+                                                          state.fields[latIndex].value = latText;
+                                                          state.fields[lngIndex].value = lngText;
+                                                        });
                                                       }
-                                                      // else {
-                                                      //   if (!context.mounted) return;
-                                                      //   Utils.showPermissionDialog(context: context);
-                                                      // }
                                                     },
                                                     child: Column(
                                                       mainAxisSize: MainAxisSize.min,
@@ -222,15 +272,12 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                                                   child: IconButton(
                                                                     visualDensity: VisualDensity(vertical: -4),
                                                                     onPressed: () async {
+                                                                      if (latIndex == -1 || lngIndex == -1) return;
+
                                                                       bool permission =
                                                                           await CheckLocationPermission.checkPermissionGps(
                                                                             context: context,
                                                                           );
-                                                                      // if (!permission) {
-                                                                      // if (!context.mounted) return;
-                                                                      // Utils.showPermissionDialog(context: context);
-                                                                      // return;
-                                                                      // }
                                                                       if (!permission) return;
                                                                       if (!context.mounted) return;
                                                                       final result = await Navigator.pushNamed(
@@ -238,14 +285,16 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                                                         AppRoutesName.mapPage,
                                                                       );
                                                                       if (result != null && result is LatLng) {
-                                                                        textBoxC[latIndex]!.text =
-                                                                            result.latitude.toString();
-                                                                        textBoxC[lngIndex]!.text =
-                                                                            result.longitude.toString();
-                                                                        state.fields[latIndex].value =
-                                                                            result.latitude.toString();
-                                                                        state.fields[lngIndex].value =
-                                                                            result.longitude.toString();
+                                                                        setState(() {
+                                                                          textBoxC[latIndex]!.text =
+                                                                              result.latitude.toString();
+                                                                          textBoxC[lngIndex]!.text =
+                                                                              result.longitude.toString();
+                                                                          state.fields[latIndex].value =
+                                                                              result.latitude.toString();
+                                                                          state.fields[lngIndex].value =
+                                                                              result.longitude.toString();
+                                                                        });
                                                                       }
                                                                     },
                                                                     icon: Icon(Icons.location_on, color: AppColors.red),
@@ -263,11 +312,6 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                                                 itemData.isMandatory == true
                                                                     ? AppColors.red
                                                                     : AppColors.black,
-                                                            onChanged: (value) {
-                                                              itemData.value = value;
-                                                            },
-                                                            // labelText:
-                                                            //     "${itemData.label} (long press below to get value)",
                                                           ),
                                                         ),
                                                       ],
@@ -306,7 +350,7 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                                 initialValue:
                                                     (dropdownValues[index] != null &&
                                                             dropdownList.any(
-                                                              (item) => item.value == dropdownValues[index],
+                                                              (item) => item.value.toString() == dropdownValues[index],
                                                             ))
                                                         ? dropdownValues[index]
                                                         : null,
@@ -339,7 +383,10 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                                       );
                                                     }).toList(),
                                                 onChanged: (String? value) {
-                                                  dropdownValues[index] = value;
+                                                  setState(() {
+                                                    dropdownValues[index] = value;
+                                                    itemData.value = value;
+                                                  });
                                                 },
                                               )
                                               : itemData.type == "MULTISELECT"
@@ -352,8 +399,50 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                                 selectedValues: multiDropdownValues[index] ?? [],
                                                 label: itemData.label!,
                                                 onChanged: (value) {
-                                                  multiDropdownValues[index] = value;
+                                                  setState(() {
+                                                    multiDropdownValues[index] = value;
+                                                    itemData.value = value.join(', ');
+                                                  });
                                                 },
+                                              )
+                                              : itemData.type == "JSONTABLE"
+                                              ? Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  sumTotalArea == 0.0
+                                                      ? SizedBox()
+                                                      : SizedBox(
+                                                        width: double.infinity,
+                                                        child: Text("Sum of Area: $sumTotalArea"),
+                                                      ),
+                                                  const SizedBox(height: 15.0),
+                                                  SizedBox(
+                                                    width: double.infinity,
+                                                    child: CustomElevatedButton(
+                                                      backgroundColor: Colors.grey.shade500,
+                                                      borderRadius: 0,
+                                                      text: "${itemData.label} ->",
+                                                      onPressed: () async {
+                                                        final result = await Navigator.pushNamed(
+                                                          context,
+                                                          AppRoutesName.measurementDetailsPage,
+                                                          arguments: itemData.value,
+                                                        );
+
+                                                        if (result != null && result is Map) {
+                                                          final newJson = result['jsonString'] as String;
+                                                          final sumOfArea = result['sumTotalArea'] as double;
+                                                          setState(() {
+                                                            if (newJson.isNotEmpty) {
+                                                              itemData.value = newJson;
+                                                              sumTotalArea = sumOfArea;
+                                                            }
+                                                          });
+                                                        }
+                                                      },
+                                                    ),
+                                                  ),
+                                                ],
                                               )
                                               : itemData.type == "DATE"
                                               ? CustomDatePicker(
@@ -366,7 +455,9 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                                         ? AppTextStyle.ts12RB.copyWith(color: AppColors.red)
                                                         : AppTextStyle.ts12RB,
                                                 label: itemData.label!,
-                                                onDateSelected: (date) {},
+                                                onDateSelected: (date) {
+                                                  itemData.value = dateControllers[index]!.text;
+                                                },
                                               )
                                               : itemData.type == "WEBVIEW"
                                               ? Row(
@@ -468,31 +559,37 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                     onPressed: () {
                                       var updatedFields = state.fields;
                                       for (var i = 0; i < updatedFields.length; i++) {
-                                        if (updatedFields[i].type == "TEXTBOX") {
-                                          updatedFields[i].value = textBoxC[i]?.text;
-                                        } else if (updatedFields[i].type == "TEXTAREA") {
-                                          updatedFields[i].value = textAreaC[i]?.text;
-                                        } else if (updatedFields[i].type == "COMBOBOX") {
-                                          updatedFields[i].value = dropdownValues[i];
-                                        } else if (updatedFields[i].type == "MULTISELECT") {
-                                          updatedFields[i].value = (multiDropdownValues[i] ?? []).join(', ');
-                                        } else if (updatedFields[i].type == "DATE") {
-                                          updatedFields[i].value = dateControllers[i]?.text;
+                                        final field = updatedFields[i];
+
+                                        if (field.type == "TEXTBOX") {
+                                          field.value = textBoxC[i]?.text;
+                                        } else if (field.type == "TEXTAREA") {
+                                          field.value = textAreaC[i]?.text;
+                                        } else if (field.type == "COMBOBOX") {
+                                          field.value = dropdownValues[i];
+                                        } else if (field.type == "MULTISELECT") {
+                                          field.value = (multiDropdownValues[i] ?? []).join(', ');
+                                        } else if (field.type == "DATE") {
+                                          field.value = dateControllers[i]?.text;
                                         }
-                                        if (updatedFields[i].label?.toLowerCase() == "visit charges" &&
-                                            int.parse(textBoxC[i]!.text.trim()) == 0) {
-                                          showDialog(
-                                            context: context,
-                                            builder:
-                                                (context) => CustomAlertDialog(
-                                                  title: "",
-                                                  content: "Charges cannot be 0.",
-                                                  onConfirm: () {},
-                                                  confirmText: "OK",
-                                                  confirmTextStyle: AppTextStyle.ts14MB.copyWith(color: Colors.teal),
-                                                ),
-                                          );
-                                          return;
+
+                                        if (field.type == "TEXTBOX" && field.label?.toLowerCase() == "visit charges") {
+                                          final raw = textBoxC[i]?.text.trim() ?? "";
+                                          final charges = int.tryParse(raw);
+                                          if (charges == null || charges == 0) {
+                                            showDialog(
+                                              context: context,
+                                              builder:
+                                                  (context) => CustomAlertDialog(
+                                                    title: "",
+                                                    content: "Charges cannot be 0.",
+                                                    onConfirm: () {},
+                                                    confirmText: "OK",
+                                                    confirmTextStyle: AppTextStyle.ts14MB.copyWith(color: Colors.teal),
+                                                  ),
+                                            );
+                                            return;
+                                          }
                                         }
                                       }
                                       context.read<OpenCaseCubit>().saveData(widget.siteId, updatedFields);
@@ -500,9 +597,6 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                   ),
                                 ),
                                 SizedBox(width: 5),
-                                // widget.siteSubmitted == 1
-                                //     ? SizedBox.shrink()
-                                //     :
                                 Expanded(
                                   flex: 2,
                                   child: CustomElevatedButton(

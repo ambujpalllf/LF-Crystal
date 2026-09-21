@@ -7,4 +7,5 @@ class AppRoutesName {
   static const String fullScreenImageViewPage = "/fullScreenImageViewPage";
   static const String imageViewPage = "/imageViewPage";
   static const String mapPage = "/mapPage";
+  static const String measurementDetailsPage = "/measurementDetailsPage";
 }

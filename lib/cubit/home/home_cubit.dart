@@ -92,7 +92,7 @@ class HomeCubit extends Cubit<HomeState> {
   void logoutUser() async {
     await StorageFunction.removeData(StorageKey.token);
     await StorageFunction.removeData(StorageKey.refreshToken);
-    await StorageFunction.removeData(StorageKey.userId);
+    // await StorageFunction.removeData(StorageKey.userId);
     await StorageFunction.removeData(StorageKey.loginDateTime);
     await StorageFunction.removeData(StorageKey.isLogin);
     FlutterForegroundTask.stopService();

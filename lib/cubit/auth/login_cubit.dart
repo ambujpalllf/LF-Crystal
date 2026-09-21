@@ -4,13 +4,16 @@ import 'dart:io';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:lf_crystal/constants/api_urls.dart';
 import 'package:lf_crystal/constants/check_location_permission.dart';
 import 'package:lf_crystal/constants/storage_function.dart';
 import 'package:lf_crystal/constants/storage_key.dart';
 import 'package:lf_crystal/cubit/auth/login_state.dart';
+import 'package:lf_crystal/database/database_helper.dart';
 import 'package:lf_crystal/services/base_client.dart';
 import 'package:lf_crystal/services/notification_services.dart';
 import 'package:location/location.dart';
@@ -18,7 +21,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 class LoginCubit extends Cubit<LoginState> {
   LoginCubit() : super(LoginInitState());
-
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
   void showPassword(bool isShow) {
     emit(ShowHidePassState(!isShow));
   }
@@ -72,6 +75,7 @@ class LoginCubit extends Cubit<LoginState> {
 
       // Handle error response
       if (response == null || response["status"] != "OK" || response["token"] == null) {
+        TextInput.finishAutofillContext(shouldSave: false);
         emit(LoginErrorState(response?["message"] ?? "Login failed."));
 
         return;
@@ -84,7 +88,9 @@ class LoginCubit extends Cubit<LoginState> {
         return;
       }
       DateTime now = DateTime.now();
-
+      await secureStorage.write(key: 'saved_username', value: userName.trim());
+      await secureStorage.write(key: 'saved_password', value: password);
+      TextInput.finishAutofillContext(shouldSave: true);
       await StorageFunction.writeStringData(StorageKey.loginDateTime, now.toIso8601String());
       await StorageFunction.writeStringData(StorageKey.token, accessToken);
       await StorageFunction.writeStringData(StorageKey.refreshToken, refreshToken);
@@ -93,6 +99,12 @@ class LoginCubit extends Cubit<LoginState> {
         final userId = dataList[0]["user_id"];
         final valuerId = dataList[0]["valuer_id"];
         if (userId != null) {
+          // Clear the previous user data
+          final previousUserId = await StorageFunction.readIntData(StorageKey.userId);
+          if (previousUserId != null && previousUserId != userId) {
+            clearAllData();
+          }
+
           await StorageFunction.writeIntData(StorageKey.userId, userId);
           await StorageFunction.writeIntData(StorageKey.valuerId, valuerId);
         }
@@ -103,6 +115,12 @@ class LoginCubit extends Cubit<LoginState> {
       String errorMsg = e.toString().split(":").last;
       emit(LoginErrorState(errorMsg));
     }
+  }
+
+  void clearAllData() async {
+    await StorageFunction.removeData(StorageKey.isCategoryDownload);
+    await StorageFunction.removeData(StorageKey.siteIds);
+    await DBHelper.clearAllData();
   }
 
   Future<String> getAppVersion() async {
@@ -130,13 +148,35 @@ class LoginCubit extends Cubit<LoginState> {
     if (Platform.isAndroid) {
       final AndroidDeviceInfo android = await deviceInfo.androidInfo;
 
-      return {"platform": "Android", "brand": android.brand, "model": android.model, "device": android.device, "manufacturer": android.manufacturer, "product": android.product, "androidVersion": android.version.release, "sdkInt": android.version.sdkInt, "board": android.board, "hardware": android.hardware, "isPhysicalDevice": android.isPhysicalDevice, "id": android.id};
+      return {
+        "platform": "Android",
+        "brand": android.brand,
+        "model": android.model,
+        "device": android.device,
+        "manufacturer": android.manufacturer,
+        "product": android.product,
+        "androidVersion": android.version.release,
+        "sdkInt": android.version.sdkInt,
+        "board": android.board,
+        "hardware": android.hardware,
+        "isPhysicalDevice": android.isPhysicalDevice,
+        "id": android.id,
+      };
     }
 
     if (Platform.isIOS) {
       final IosDeviceInfo ios = await deviceInfo.iosInfo;
 
-      return {"platform": "iOS", "name": ios.name, "model": ios.model, "localizedModel": ios.localizedModel, "systemName": ios.systemName, "systemVersion": ios.systemVersion, "identifierForVendor": ios.identifierForVendor, "isPhysicalDevice": ios.isPhysicalDevice};
+      return {
+        "platform": "iOS",
+        "name": ios.name,
+        "model": ios.model,
+        "localizedModel": ios.localizedModel,
+        "systemName": ios.systemName,
+        "systemVersion": ios.systemVersion,
+        "identifierForVendor": ios.identifierForVendor,
+        "isPhysicalDevice": ios.isPhysicalDevice,
+      };
     }
 
     return {"platform": "Unknown"};
@@ -171,7 +211,7 @@ class LoginCubit extends Cubit<LoginState> {
     if (loginDateOnly.isBefore(currentDateOnly)) {
       await StorageFunction.removeData(StorageKey.token);
       await StorageFunction.removeData(StorageKey.refreshToken);
-      await StorageFunction.removeData(StorageKey.userId);
+      // await StorageFunction.removeData(StorageKey.userId);
       await StorageFunction.removeData(StorageKey.loginDateTime);
       await StorageFunction.removeData(StorageKey.isLogin);
       FlutterForegroundTask.stopService();
