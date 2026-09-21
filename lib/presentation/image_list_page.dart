@@ -155,29 +155,13 @@ class _ImageListPageState extends State<ImageListPage> {
                         children: [
                           Expanded(
                             child: Card(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadiusGeometry.directional(
-                                  topStart: Radius.circular(4.0),
-                                  topEnd: Radius.circular(4.0),
-                                ),
-                              ),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.directional(topStart: Radius.circular(4.0), topEnd: Radius.circular(4.0))),
                               margin: EdgeInsets.all(0),
                               clipBehavior: Clip.none,
                               color: itemData.sync == 1 ? Colors.green.shade400 : Colors.yellow.shade400,
                               child: Stack(
                                 children: [
-                                  Positioned.fill(
-                                    child: Padding(
-                                      padding: const EdgeInsets.fromLTRB(4, 4, 4, 0.0),
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(4.0),
-                                          topRight: Radius.circular(4.0),
-                                        ),
-                                        child: Image.file(File(itemData.imagePath), fit: BoxFit.cover),
-                                      ),
-                                    ),
-                                  ),
+                                  Positioned.fill(child: Padding(padding: const EdgeInsets.fromLTRB(4, 4, 4, 0.0), child: ClipRRect(borderRadius: BorderRadius.only(topLeft: Radius.circular(4.0), topRight: Radius.circular(4.0)), child: Image.file(File(itemData.imagePath), fit: BoxFit.cover)))),
                                   Positioned(
                                     // top: 10,
                                     top: -2,
@@ -195,15 +179,12 @@ class _ImageListPageState extends State<ImageListPage> {
                                                 title: "Delete Image",
                                                 content: "Are you sure you want to delete this image?",
                                                 onConfirm: () {
-                                                  context.read<ImageListCubit>().deleteImage(
-                                                    siteId: widget.siteId,
-                                                    imgId: itemData.id!,
-                                                  );
+                                                  context.read<ImageListCubit>().deleteImage(siteId: widget.siteId, imgId: itemData.id!);
                                                 },
                                               ),
                                         );
                                       },
-                                      icon: Icon(Icons.close, color: Colors.black, size: 20),
+                                      icon: Icon(Icons.close, color: Colors.red, size: 20),
                                     ),
                                   ),
                                   itemData.sync == 1
@@ -244,10 +225,7 @@ class _ImageListPageState extends State<ImageListPage> {
                                                       });
                                                     });
                                                   },
-                                          child: RefreshIcon(
-                                            isSyncing: syncList[index],
-                                            icColor: isTapSync == true ? Colors.grey.shade500 : Colors.white,
-                                          ),
+                                          child: RefreshIcon(isSyncing: syncList[index], icColor: isTapSync == true ? Colors.grey.shade500 : Colors.white),
                                         ),
                                       ),
                                 ],
@@ -263,22 +241,8 @@ class _ImageListPageState extends State<ImageListPage> {
                               alignment: Alignment.center,
                               padding: EdgeInsets.all(4.0),
                               width: double.infinity,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                  bottomLeft: Radius.circular(4.0),
-                                  bottomRight: Radius.circular(4.0),
-                                ),
-                                color: Colors.white,
-                                boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4))],
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                spacing: 4.0,
-                                children: [
-                                  Icon(Icons.edit, size: 18, color: Colors.grey),
-                                  Flexible(child: Text("${itemData.syncSerialOrder}", style: AppTextStyle.ts14MB)),
-                                ],
-                              ),
+                              decoration: BoxDecoration(borderRadius: BorderRadius.only(bottomLeft: Radius.circular(4.0), bottomRight: Radius.circular(4.0)), color: Colors.white, boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4))]),
+                              child: Row(mainAxisAlignment: MainAxisAlignment.center, spacing: 4.0, children: [Icon(Icons.edit, size: 18, color: Colors.grey), Flexible(child: Text("${itemData.syncSerialOrder}", style: AppTextStyle.ts14MB))]),
                             ),
                           ),
                         ],
@@ -296,21 +260,11 @@ class _ImageListPageState extends State<ImageListPage> {
                         padding: const EdgeInsets.only(bottom: 12.0),
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
-                          decoration: BoxDecoration(
-                            color: itemData.sync == 1 ? Colors.green.shade300 : Colors.yellow.shade300,
-                          ),
+                          decoration: BoxDecoration(color: itemData.sync == 1 ? Colors.green.shade300 : Colors.yellow.shade300),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(itemData.imagePath.split("/").last),
-                                    Text(DateFormat("dd-MM-yyyy").format(itemData.moDateTime)),
-                                  ],
-                                ),
-                              ),
+                              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(itemData.imagePath.split("/").last), Text(DateFormat("dd-MM-yyyy").format(itemData.moDateTime))])),
                               itemData.sync == 1
                                   ? const SizedBox()
                                   : GestureDetector(
@@ -346,10 +300,7 @@ class _ImageListPageState extends State<ImageListPage> {
                                                 });
                                               });
                                             },
-                                    child: RefreshIcon(
-                                      isSyncing: syncList[index],
-                                      icColor: isTapSync == true ? Colors.grey.shade500 : Colors.white,
-                                    ),
+                                    child: RefreshIcon(isSyncing: syncList[index], icColor: isTapSync == true ? Colors.grey.shade500 : Colors.white),
                                   ),
                             ],
                           ),
@@ -361,13 +312,9 @@ class _ImageListPageState extends State<ImageListPage> {
           },
           listener: (context, state) {
             if (state is ImageListErrorState) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(backgroundColor: Colors.red, content: Text(state.message, style: AppTextStyle.ts14MW)),
-              );
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text(state.message, style: AppTextStyle.ts14MW)));
             } else if (state is ImageListSuccesState) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(backgroundColor: Colors.green, content: Text(state.message, style: AppTextStyle.ts14MW)),
-              );
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.green, content: Text(state.message, style: AppTextStyle.ts14MW)));
             }
           },
         ),
@@ -384,25 +331,14 @@ class _ImageListPageState extends State<ImageListPage> {
           return AlertDialog(
             backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(4.0)),
-            title: Row(
-              mainAxisSize: MainAxisSize.min,
-              spacing: 8.0,
-              children: [Icon(Icons.info, color: Colors.yellow.shade400), Text("Info", style: AppTextStyle.ts18MB)],
-            ),
+            title: Row(mainAxisSize: MainAxisSize.min, spacing: 8.0, children: [Icon(Icons.info, color: Colors.yellow.shade400), Text("Info", style: AppTextStyle.ts18MB)]),
             content: Text("Sync your images first, then you can rearrange their order.", style: AppTextStyle.ts14RB),
             actions: [
               GestureDetector(
                 onTap: () {
                   Navigator.pop(context);
                 },
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-                  decoration: BoxDecoration(
-                    color: Colors.blueGrey.shade300,
-                    borderRadius: BorderRadius.circular(100.0),
-                  ),
-                  child: Text("OK", style: AppTextStyle.ts16MW),
-                ),
+                child: Container(padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0), decoration: BoxDecoration(color: Colors.blueGrey.shade300, borderRadius: BorderRadius.circular(100.0)), child: Text("OK", style: AppTextStyle.ts16MW)),
               ),
             ],
           );
@@ -417,14 +353,7 @@ class _ImageListPageState extends State<ImageListPage> {
           return AlertDialog(
             backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(4.0)),
-            title: Row(
-              mainAxisSize: MainAxisSize.min,
-              spacing: 8.0,
-              children: [
-                Icon(Icons.info, color: Colors.blueGrey.shade300),
-                Text("Add Serial Number", style: AppTextStyle.ts16MB),
-              ],
-            ),
+            title: Row(mainAxisSize: MainAxisSize.min, spacing: 8.0, children: [Icon(Icons.info, color: Colors.blueGrey.shade300), Text("Add Serial Number", style: AppTextStyle.ts16MB)]),
             content: Form(
               key: formKey,
               child: CustomTextformField(
@@ -449,31 +378,17 @@ class _ImageListPageState extends State<ImageListPage> {
                       Navigator.pop(context);
                       imgSerialC.clear();
                     },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-                      decoration: BoxDecoration(color: Colors.red.shade300, borderRadius: BorderRadius.circular(100.0)),
-                      child: Text("CANCEL", style: AppTextStyle.ts16MW),
-                    ),
+                    child: Container(padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0), decoration: BoxDecoration(color: Colors.red.shade300, borderRadius: BorderRadius.circular(100.0)), child: Text("CANCEL", style: AppTextStyle.ts16MW)),
                   ),
                   GestureDetector(
                     onTap: () {
                       if (formKey.currentState!.validate()) {
-                        context.read<ImageListCubit>().updateSerialOrder(
-                          imgData: imgData,
-                          serialOrder: imgSerialC.text,
-                        );
+                        context.read<ImageListCubit>().updateSerialOrder(imgData: imgData, serialOrder: imgSerialC.text);
                         imgSerialC.clear();
                         Navigator.pop(context);
                       }
                     },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 4.0),
-                      decoration: BoxDecoration(
-                        color: Colors.blue.shade300,
-                        borderRadius: BorderRadius.circular(100.0),
-                      ),
-                      child: Text("SET", style: AppTextStyle.ts16MW),
-                    ),
+                    child: Container(padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 4.0), decoration: BoxDecoration(color: Colors.blue.shade300, borderRadius: BorderRadius.circular(100.0)), child: Text("SET", style: AppTextStyle.ts16MW)),
                   ),
                 ],
               ),

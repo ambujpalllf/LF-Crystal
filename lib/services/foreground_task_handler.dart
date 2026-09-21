@@ -101,7 +101,7 @@ class ForegroundTaskHandler {
     if (await FlutterForegroundTask.isRunningService) {
       return FlutterForegroundTask.restartService();
     } else {
-      return FlutterForegroundTask.startService(serviceTypes: [ForegroundServiceTypes.location], notificationTitle: 'LiasesForas', notificationText: 'Liasesforas service running', callback: startCallback);
+      return FlutterForegroundTask.startService(serviceTypes: [ForegroundServiceTypes.location], notificationTitle: 'LiasesForas', notificationText: 'Liasesforas service running', callback: startCallback, notificationIcon: NotificationIcon(metaDataName: "com.liasesforas.crystal.NOTIFICATION_ICON"));
     }
   }
 

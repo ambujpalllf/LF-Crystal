@@ -117,7 +117,7 @@ class Utils {
   }
 
   // image picker from gallery or camera
-  static Future<File?> pickImage({required ImageSource source}) async {
+  static Future<File?> pickImage({required ImageSource source, CameraDevice preferredCameraDevice = CameraDevice.rear}) async {
     try {
       Permission permission;
 
@@ -135,7 +135,7 @@ class Utils {
         }
       }
 
-      final XFile? image = await _picker.pickImage(source: source, maxHeight: 1280, maxWidth: 1280, imageQuality: 80);
+      final XFile? image = await _picker.pickImage(source: source, maxHeight: 1280, maxWidth: 1280, imageQuality: 80, preferredCameraDevice: preferredCameraDevice);
 
       //  USER CANCELS → NOT AN ERROR
       if (image == null) {

@@ -47,7 +47,7 @@ class SelfieCubit extends Cubit<SelfieState> {
       final permission = await CheckLocationPermission.checkPermissionGps(context: context);
       if (!permission) return;
 
-      File? imagePath = await Utils.pickImage(source: ImageSource.camera);
+      File? imagePath = await Utils.pickImage(source: ImageSource.camera, preferredCameraDevice: CameraDevice.front);
       if (imagePath == null) {
         return;
       }

@@ -85,10 +85,7 @@ class PhotoCubit extends Cubit<PhotoState> {
     final localData = await DBHelper.getCategories();
 
     if (localData.isNotEmpty) {
-      final matchedCategory = localData.firstWhere(
-        (element) => element.categoryType == categoryType,
-        orElse: () => CategoryDatum(categoryType: categoryType, subCategory: []),
-      );
+      final matchedCategory = localData.firstWhere((element) => element.categoryType == categoryType, orElse: () => CategoryDatum(categoryType: categoryType, subCategory: []));
       final localModel = PhotoCategoryResponse(data: localData);
 
       final subcategories = matchedCategory.subCategory ?? [];
@@ -184,33 +181,22 @@ class PhotoCubit extends Cubit<PhotoState> {
   //   }
   // }
 
-  void takePicture({
-    required int siteId,
-    required String imageTitle,
-    required String imageSubTitle,
-    required BuildContext context,
-    required int bankId,
-    required String applicantName,
-  }) async {
+  void takePicture({required int siteId, required String imageTitle, required String imageSubTitle, required BuildContext context, required int bankId, required String applicantName}) async {
     if (_isPicking) return; // Prevent multiple requests while the current image is being processed.
     _isPicking = true;
     try {
       if (!context.mounted) return;
       final permission = await CheckLocationPermission.checkPermissionGps(context: context);
       if (!permission) return;
-
-      File? imagePath = await Utils.pickImage(source: ImageSource.camera);
+      String imgType = imageTitle.trim().toLowerCase();
+      File? imagePath = await Utils.pickImage(source: ImageSource.camera, preferredCameraDevice: imgType == "selfie" ? CameraDevice.front : CameraDevice.rear);
       if (imagePath == null) {
         return;
       }
       String notes = "";
       if (bankId == 32) {
         if (!context.mounted) return;
-        String? result = await DialogueHelper.showAddDialog(
-          context: context,
-          applicantName: applicantName,
-          imageSubtitle: imageSubTitle,
-        );
+        String? result = await DialogueHelper.showAddDialog(context: context, applicantName: applicantName, imageSubtitle: imageSubTitle);
         if (result != null) {
           notes = result;
         }
@@ -253,16 +239,7 @@ class PhotoCubit extends Cubit<PhotoState> {
       //   notes: notes,
       // );
 
-      final metaImg = await Utils.addMetadataWithCanvas(
-        imageFile: imagePath,
-        latitude: position.latitude ?? 0.0,
-        longitude: position.longitude ?? 0.0,
-        accuracy: position.accuracy ?? 0.0,
-        timestamp: now,
-        imageTitle: imageTitle,
-        imageSubTitle: imageSubTitle,
-        notes: notes,
-      );
+      final metaImg = await Utils.addMetadataWithCanvas(imageFile: imagePath, latitude: position.latitude ?? 0.0, longitude: position.longitude ?? 0.0, accuracy: position.accuracy ?? 0.0, timestamp: now, imageTitle: imageTitle, imageSubTitle: imageSubTitle, notes: notes);
       // final appDir = await getApplicationDocumentsDirectory();
       // final params = {
       //   'imagePath': imagePath.path,

@@ -53,7 +53,8 @@ class NotificationServices {
 
   Future<void> _initializeLocalNotifications(BuildContext context) async {
     try {
-      const AndroidInitializationSettings androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+      // const AndroidInitializationSettings androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const AndroidInitializationSettings androidSettings = AndroidInitializationSettings('ic_launcher');
 
       const DarwinInitializationSettings iosSettings = DarwinInitializationSettings(requestAlertPermission: false, requestBadgePermission: false, requestSoundPermission: false, requestCriticalPermission: false);
 
@@ -215,7 +216,7 @@ class NotificationServices {
 
       final String payload = jsonEncode(message.data);
 
-      const AndroidNotificationDetails androidDetails = AndroidNotificationDetails('high_importance_channel', 'High Importance Notification', channelDescription: 'This channel is used for important notifications.', importance: Importance.max, priority: Priority.high, ticker: 'ticker', playSound: true);
+      const AndroidNotificationDetails androidDetails = AndroidNotificationDetails('high_importance_channel', 'High Importance Notification', channelDescription: 'This channel is used for important notifications.', importance: Importance.max, priority: Priority.high, ticker: 'ticker', playSound: true, icon: 'ic_launcher');
 
       const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(presentAlert: true, presentBadge: true, presentSound: true);
 

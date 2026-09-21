@@ -4,6 +4,16 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <!-- android:requestLegacyExternalStorage="true" -->
+
+        <!-- flutter_foreground_task -->
+        <meta-data
+            android:name="com.liasesforas.crystal.NOTIFICATION_ICON"
+            android:resource="@drawable/ic_launcher" />
+        <!-- Firebase Cloud Messaging -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:value="@drawable/ic_launcher" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -95,7 +105,7 @@
             <data android:scheme="tel" />
         </intent>
     </queries>
-<!-- Add for permission image camera and gallery for oneplus-->
+    <!-- Add for permission image camera and gallery for oneplus-->
     <queries>
         <intent>
             <action android:name="android.intent.action.GET_CONTENT" />

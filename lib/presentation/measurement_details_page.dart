@@ -22,14 +22,7 @@ class _MeasurementDetailsPageState extends State<MeasurementDetailsPage> {
   bool _isPopping = false;
   List<RoomDetails> measurementData = [];
   List<SpinnerMaster> buildingSpaces = [];
-  List<String> shapeName = [
-    "Square",
-    "Triangle",
-    "Door Sill(1.75)",
-    "Door Sill(1.25)",
-    "Semi-Circle",
-    "Quarter-Circle",
-  ];
+  List<String> shapeName = ["Square", "Triangle", "Door Sill(1.75)", "Door Sill(1.25)", "Semi-Circle", "Quarter-Circle"];
   TextEditingController lengthFeetC = TextEditingController();
   TextEditingController lengthInchC = TextEditingController();
   TextEditingController breadthFeetC = TextEditingController();
@@ -60,19 +53,12 @@ class _MeasurementDetailsPageState extends State<MeasurementDetailsPage> {
     breadthInchC.clear();
     selectedBuildingSpace = null;
     selectedShape = null;
+    lengthTotal = 0.0;
+    breadthTotal = 0.0;
+    areaTotal = 0.0;
   }
 
-  void prefillFields({
-    required String lengthFeet,
-    required String lengthInch,
-    required double lenTotal,
-    required String breadthFeet,
-    required String breadthInch,
-    required double breTotal,
-    required String description,
-    required String buildingShape,
-    required double area,
-  }) {
+  void prefillFields({required String lengthFeet, required String lengthInch, required double lenTotal, required String breadthFeet, required String breadthInch, required double breTotal, required String description, required String buildingShape, required double area}) {
     final parts = description.split('-');
     final key = parts.isNotEmpty ? parts[0].trim() : '';
     // final value = parts.length > 1 ? parts[1].trim() : '';
@@ -120,12 +106,7 @@ class _MeasurementDetailsPageState extends State<MeasurementDetailsPage> {
       },
       child: Scaffold(
         backgroundColor: Colors.grey.shade200,
-        appBar: AppBar(
-          backgroundColor: AppColors.blue,
-          automaticallyImplyLeading: false,
-          leading: IconButton(onPressed: () => _goBackWithData(), icon: Icon(Icons.arrow_back, color: AppColors.white)),
-          title: Text("Measurement Details", style: AppTextStyle.ts18BW),
-        ),
+        appBar: AppBar(backgroundColor: AppColors.blue, automaticallyImplyLeading: false, leading: IconButton(onPressed: () => _goBackWithData(), icon: Icon(Icons.arrow_back, color: AppColors.white)), title: Text("Measurement Details", style: AppTextStyle.ts18BW)),
         body: BlocListener<MeasurementCubit, MeasurementState>(
           listener: (context, state) {
             if (state is LoadedState) {
@@ -199,11 +180,7 @@ class _MeasurementDetailsPageState extends State<MeasurementDetailsPage> {
                                           activeColor: Colors.green,
                                           value: isChecked,
                                           onChanged: (value) {
-                                            measurementCubit.calculateSumofArea(
-                                              isChecked: value!,
-                                              index: index,
-                                              mesurementData: measurementData,
-                                            );
+                                            measurementCubit.calculateSumofArea(isChecked: value!, index: index, mesurementData: measurementData);
                                           },
                                         ),
                                       ],
@@ -212,41 +189,17 @@ class _MeasurementDetailsPageState extends State<MeasurementDetailsPage> {
                                     Text("Length: $lengthFeet feet $lengthInches inches = Total: $lengthTotal"),
                                     Text("Breadth: $breadthFeet feet $breadthInches inches = Total: $breadthTotal"),
                                     Divider(thickness: 1),
-                                    Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Expanded(child: Text("Area: $area", softWrap: true)),
-                                        const SizedBox(width: 16),
-                                        Expanded(
-                                          child: Text("Shape: $shape", softWrap: true, textAlign: TextAlign.end),
-                                        ),
-                                      ],
-                                    ),
+                                    Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Expanded(child: Text("Area: $area", softWrap: true)), const SizedBox(width: 16), Expanded(child: Text("Shape: $shape", softWrap: true, textAlign: TextAlign.end))]),
                                     Row(
                                       spacing: 12.0,
                                       children: [
                                         Expanded(
                                           child: GestureDetector(
                                             onTap: () {
-                                              prefillFields(
-                                                lengthFeet: lengthFeet,
-                                                lengthInch: lengthInches,
-                                                lenTotal: double.tryParse(lengthTotal) ?? 0.0,
-                                                breadthFeet: breadthFeet,
-                                                breadthInch: breadthInches,
-                                                breTotal: double.tryParse(breadthTotal) ?? 0.0,
-                                                description: description,
-                                                buildingShape: shape,
-                                                area: double.tryParse(area) ?? 0.0,
-                                              );
+                                              prefillFields(lengthFeet: lengthFeet, lengthInch: lengthInches, lenTotal: double.tryParse(lengthTotal) ?? 0.0, breadthFeet: breadthFeet, breadthInch: breadthInches, breTotal: double.tryParse(breadthTotal) ?? 0.0, description: description, buildingShape: shape, area: double.tryParse(area) ?? 0.0);
                                               measurementDialgoue(index: index);
                                             },
-                                            child: Container(
-                                              alignment: Alignment.center,
-                                              padding: EdgeInsets.all(6.0),
-                                              decoration: BoxDecoration(color: AppColors.blue),
-                                              child: Text("EDIT", style: AppTextStyle.ts14MW),
-                                            ),
+                                            child: Container(alignment: Alignment.center, padding: EdgeInsets.all(6.0), decoration: BoxDecoration(color: AppColors.blue), child: Text("EDIT", style: AppTextStyle.ts14MW)),
                                           ),
                                         ),
                                         Expanded(
@@ -254,12 +207,7 @@ class _MeasurementDetailsPageState extends State<MeasurementDetailsPage> {
                                             onTap: () {
                                               removeDataDialogue(index: index);
                                             },
-                                            child: Container(
-                                              alignment: Alignment.center,
-                                              padding: EdgeInsets.all(6.0),
-                                              decoration: BoxDecoration(color: AppColors.blue),
-                                              child: Text("REMOVE", style: AppTextStyle.ts14MW),
-                                            ),
+                                            child: Container(alignment: Alignment.center, padding: EdgeInsets.all(6.0), decoration: BoxDecoration(color: AppColors.blue), child: Text("REMOVE", style: AppTextStyle.ts14MW)),
                                           ),
                                         ),
                                       ],
@@ -329,277 +277,170 @@ class _MeasurementDetailsPageState extends State<MeasurementDetailsPage> {
                     contentPadding: EdgeInsets.zero,
                     content: SizedBox(
                       width: double.maxFinite,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: DropdownButtonFormField<SpinnerMaster>(
-                              initialValue: selectedBuildingSpace,
-                              hint: const Text("Select Building Space"),
-                              isExpanded: true,
-                              items:
-                                  buildingSpaces.map<DropdownMenuItem<SpinnerMaster>>((spinner) {
-                                    return DropdownMenuItem<SpinnerMaster>(
-                                      value: spinner,
-                                      child: Text("${spinner.key} - ${spinner.value}", overflow: TextOverflow.ellipsis),
-                                    );
-                                  }).toList(),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: DropdownButtonFormField<SpinnerMaster>(
+                                initialValue: selectedBuildingSpace,
+                                hint: const Text("Select Building Space"),
+                                isExpanded: true,
+                                items:
+                                    buildingSpaces.map<DropdownMenuItem<SpinnerMaster>>((spinner) {
+                                      return DropdownMenuItem<SpinnerMaster>(value: spinner, child: Text("${spinner.key} - ${spinner.value}", overflow: TextOverflow.ellipsis));
+                                    }).toList(),
 
-                              onChanged: (SpinnerMaster? value) {
-                                setState(() {
-                                  selectedBuildingSpace = value;
-                                });
+                                onChanged: (SpinnerMaster? value) {
+                                  setState(() {
+                                    selectedBuildingSpace = value;
+                                  });
 
-                                cubit.fieldsValidation(
-                                  selectedBuildingSpace: selectedBuildingSpace,
-                                  lengthFeet: lengthFeetC.text.trim(),
-                                  lengthInch: lengthInchC.text.trim(),
-                                  breadthFeet: breadthFeetC.text.trim(),
-                                  breadthInch: breadthInchC.text.trim(),
-                                  buildingShape: selectedShape ?? "",
-                                );
-                              },
+                                  cubit.fieldsValidation(selectedBuildingSpace: selectedBuildingSpace, lengthFeet: lengthFeetC.text.trim(), lengthInch: lengthInchC.text.trim(), breadthFeet: breadthFeetC.text.trim(), breadthInch: breadthInchC.text.trim(), buildingShape: selectedShape ?? "");
+                                },
 
-                              decoration: InputDecoration(
-                                errorText: selectedBuildingSpaceEr.isEmpty ? null : selectedBuildingSpaceEr,
-                                contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
-                                hintText: "Select Building Space",
-                                hintStyle: AppTextStyle.ts14RB.copyWith(color: AppColors.grey),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
+                                decoration: InputDecoration(errorText: selectedBuildingSpaceEr.isEmpty ? null : selectedBuildingSpaceEr, contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0), hintText: "Select Building Space", hintStyle: AppTextStyle.ts14RB.copyWith(color: AppColors.grey), border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0))),
                               ),
                             ),
-                          ),
 
-                          const Divider(thickness: 1.5, color: Colors.black),
+                            const Divider(thickness: 1.5, color: Colors.black),
 
-                          // Length
-                          textWidget(
-                            lable: "Room Length",
-                            feetC: lengthFeetC,
-                            inchC: lengthInchC,
-                            total: lengthTotal,
-                            feetEr: lengthFeetEr,
-                            inchEr: lengthInchEr,
-                            feetOnChanged: (value) {
-                              cubit.fieldsValidation(
-                                selectedBuildingSpace: selectedBuildingSpace,
-                                lengthFeet: lengthFeetC.text.trim(),
-                                lengthInch: lengthInchC.text.trim(),
-                                breadthFeet: breadthFeetC.text.trim(),
-                                breadthInch: breadthInchC.text.trim(),
-                                buildingShape: selectedShape ?? "",
-                              );
+                            // Length
+                            textWidget(
+                              lable: "Room Length",
+                              feetC: lengthFeetC,
+                              inchC: lengthInchC,
+                              total: lengthTotal,
+                              feetEr: lengthFeetEr,
+                              inchEr: lengthInchEr,
+                              feetOnChanged: (value) {
+                                cubit.fieldsValidation(selectedBuildingSpace: selectedBuildingSpace, lengthFeet: lengthFeetC.text.trim(), lengthInch: lengthInchC.text.trim(), breadthFeet: breadthFeetC.text.trim(), breadthInch: breadthInchC.text.trim(), buildingShape: selectedShape ?? "");
 
-                              cubit.measurementCalculation(
-                                lengthFeet: lengthFeetC.text,
-                                lengthInch: lengthInchC.text,
-                                lengthTotal: lengthTotal,
-                                breadthFeet: breadthFeetC.text,
-                                breadthInch: breadthInchC.text,
-                                breadthTotal: breadthTotal,
-                                buildingShape: selectedShape ?? "",
-                                areaTotal: areaTotal,
-                              );
-                            },
-                            inchOnChanged: (value) {
-                              cubit.fieldsValidation(
-                                selectedBuildingSpace: selectedBuildingSpace,
-                                lengthFeet: lengthFeetC.text.trim(),
-                                lengthInch: lengthInchC.text.trim(),
-                                breadthFeet: breadthFeetC.text.trim(),
-                                breadthInch: breadthInchC.text.trim(),
-                                buildingShape: selectedShape ?? "",
-                              );
-                              cubit.measurementCalculation(
-                                lengthFeet: lengthFeetC.text,
-                                lengthInch: lengthInchC.text,
-                                lengthTotal: lengthTotal,
-                                breadthFeet: breadthFeetC.text,
-                                breadthInch: breadthInchC.text,
-                                breadthTotal: breadthTotal,
-                                buildingShape: selectedShape ?? "",
-                                areaTotal: areaTotal,
-                              );
-                            },
-                          ),
+                                cubit.measurementCalculation(lengthFeet: lengthFeetC.text, lengthInch: lengthInchC.text, lengthTotal: lengthTotal, breadthFeet: breadthFeetC.text, breadthInch: breadthInchC.text, breadthTotal: breadthTotal, buildingShape: selectedShape ?? "", areaTotal: areaTotal);
+                              },
+                              inchOnChanged: (value) {
+                                cubit.fieldsValidation(selectedBuildingSpace: selectedBuildingSpace, lengthFeet: lengthFeetC.text.trim(), lengthInch: lengthInchC.text.trim(), breadthFeet: breadthFeetC.text.trim(), breadthInch: breadthInchC.text.trim(), buildingShape: selectedShape ?? "");
+                                cubit.measurementCalculation(lengthFeet: lengthFeetC.text, lengthInch: lengthInchC.text, lengthTotal: lengthTotal, breadthFeet: breadthFeetC.text, breadthInch: breadthInchC.text, breadthTotal: breadthTotal, buildingShape: selectedShape ?? "", areaTotal: areaTotal);
+                              },
+                            ),
 
-                          const Divider(),
+                            const Divider(),
 
-                          // Breadth
-                          textWidget(
-                            lable: "Room Breadth",
-                            feetC: breadthFeetC,
-                            inchC: breadthInchC,
-                            total: breadthTotal,
-                            feetEr: breadthFeetEr,
-                            inchEr: breadthInchEr,
-                            feetOnChanged: (value) {
-                              cubit.fieldsValidation(
-                                selectedBuildingSpace: selectedBuildingSpace,
-                                lengthFeet: lengthFeetC.text.trim(),
-                                lengthInch: lengthInchC.text.trim(),
-                                breadthFeet: breadthFeetC.text.trim(),
-                                breadthInch: breadthInchC.text.trim(),
-                                buildingShape: selectedShape ?? "",
-                              );
-                              cubit.measurementCalculation(
-                                lengthFeet: lengthFeetC.text,
-                                lengthInch: lengthInchC.text,
-                                lengthTotal: lengthTotal,
-                                breadthFeet: breadthFeetC.text,
-                                breadthInch: breadthInchC.text,
-                                breadthTotal: breadthTotal,
-                                buildingShape: selectedShape ?? "",
-                                areaTotal: areaTotal,
-                              );
-                            },
-                            inchOnChanged: (value) {
-                              cubit.fieldsValidation(
-                                selectedBuildingSpace: selectedBuildingSpace,
-                                lengthFeet: lengthFeetC.text.trim(),
-                                lengthInch: lengthInchC.text.trim(),
-                                breadthFeet: breadthFeetC.text.trim(),
-                                breadthInch: breadthInchC.text.trim(),
-                                buildingShape: selectedShape ?? "",
-                              );
-                              cubit.measurementCalculation(
-                                lengthFeet: lengthFeetC.text,
-                                lengthInch: lengthInchC.text,
-                                lengthTotal: lengthTotal,
-                                breadthFeet: breadthFeetC.text,
-                                breadthInch: breadthInchC.text,
-                                breadthTotal: breadthTotal,
-                                buildingShape: selectedShape ?? "",
-                                areaTotal: areaTotal,
-                              );
-                            },
-                          ),
+                            // Breadth
+                            textWidget(
+                              lable: "Room Breadth",
+                              feetC: breadthFeetC,
+                              inchC: breadthInchC,
+                              total: breadthTotal,
+                              feetEr: breadthFeetEr,
+                              inchEr: breadthInchEr,
+                              feetOnChanged: (value) {
+                                cubit.fieldsValidation(selectedBuildingSpace: selectedBuildingSpace, lengthFeet: lengthFeetC.text.trim(), lengthInch: lengthInchC.text.trim(), breadthFeet: breadthFeetC.text.trim(), breadthInch: breadthInchC.text.trim(), buildingShape: selectedShape ?? "");
+                                cubit.measurementCalculation(lengthFeet: lengthFeetC.text, lengthInch: lengthInchC.text, lengthTotal: lengthTotal, breadthFeet: breadthFeetC.text, breadthInch: breadthInchC.text, breadthTotal: breadthTotal, buildingShape: selectedShape ?? "", areaTotal: areaTotal);
+                              },
+                              inchOnChanged: (value) {
+                                cubit.fieldsValidation(selectedBuildingSpace: selectedBuildingSpace, lengthFeet: lengthFeetC.text.trim(), lengthInch: lengthInchC.text.trim(), breadthFeet: breadthFeetC.text.trim(), breadthInch: breadthInchC.text.trim(), buildingShape: selectedShape ?? "");
+                                cubit.measurementCalculation(lengthFeet: lengthFeetC.text, lengthInch: lengthInchC.text, lengthTotal: lengthTotal, breadthFeet: breadthFeetC.text, breadthInch: breadthInchC.text, breadthTotal: breadthTotal, buildingShape: selectedShape ?? "", areaTotal: areaTotal);
+                              },
+                            ),
 
-                          const SizedBox(height: 8),
+                            const SizedBox(height: 8),
 
-                          const Divider(),
+                            const Divider(),
 
-                          const SizedBox(height: 8),
+                            const SizedBox(height: 8),
 
-                          // Shape + Area
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                Flexible(
-                                  child: DropdownButtonFormField<String>(
-                                    initialValue: selectedShape,
-                                    hint: const Text("Select Shape"),
-                                    isExpanded: true,
-                                    items:
-                                        shapeName.map<DropdownMenuItem<String>>((shape) {
-                                          return DropdownMenuItem<String>(
-                                            value: shape,
-                                            child: Text(shape, overflow: TextOverflow.ellipsis),
-                                          );
-                                        }).toList(),
-                                    onChanged:
-                                        index == null
-                                            ? (value) {
-                                              setState(() {
-                                                selectedShape = value;
-                                                if (selectedShape?.toLowerCase() == "semi-circle" ||
-                                                    selectedShape?.toLowerCase() == "quarter-circle") {
-                                                  breadthFeetC.text = "0";
-                                                  breadthInchC.text = "0";
-                                                  breadthTotal = 0.0;
-                                                }
-                                              });
-                                              cubit.fieldsValidation(
-                                                selectedBuildingSpace: selectedBuildingSpace,
-                                                lengthFeet: lengthFeetC.text.trim(),
-                                                lengthInch: lengthInchC.text.trim(),
-                                                breadthFeet: breadthFeetC.text.trim(),
-                                                breadthInch: breadthInchC.text.trim(),
-                                                buildingShape: selectedShape ?? "",
-                                              );
-                                              cubit.measurementCalculation(
-                                                lengthFeet: lengthFeetC.text,
-                                                lengthInch: lengthInchC.text,
-                                                lengthTotal: lengthTotal,
-                                                breadthFeet: breadthFeetC.text,
-                                                breadthInch: breadthInchC.text,
-                                                breadthTotal: breadthTotal,
-                                                buildingShape: selectedShape ?? "",
-                                                areaTotal: areaTotal,
-                                              );
-                                            }
-                                            : null,
-                                    decoration: InputDecoration(
-                                      filled: index != null,
-                                      fillColor: Colors.grey.shade200,
-                                      errorText: buildingShapeEr.isEmpty ? null : buildingShapeEr,
-                                      contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
-                                      hintText: "Select Shape",
-                                      hintStyle: AppTextStyle.ts14RB.copyWith(color: AppColors.grey),
-                                      border: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: index != null ? Colors.grey.shade200 : Colors.black,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8.0),
+                            // Shape + Area
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: [
+                                  Flexible(
+                                    child: DropdownButtonFormField<String>(
+                                      initialValue: selectedShape,
+                                      hint: const Text("Select Shape"),
+                                      isExpanded: true,
+                                      items:
+                                          shapeName.map<DropdownMenuItem<String>>((shape) {
+                                            return DropdownMenuItem<String>(value: shape, child: Text(shape, overflow: TextOverflow.ellipsis));
+                                          }).toList(),
+                                      onChanged:
+                                          index == null
+                                              ? (value) {
+                                                setState(() {
+                                                  selectedShape = value;
+                                                  if (selectedShape?.toLowerCase() == "semi-circle" || selectedShape?.toLowerCase() == "quarter-circle") {
+                                                    breadthFeetC.text = "0";
+                                                    breadthInchC.text = "0";
+                                                    breadthTotal = 0.0;
+                                                  }
+                                                });
+                                                cubit.fieldsValidation(selectedBuildingSpace: selectedBuildingSpace, lengthFeet: lengthFeetC.text.trim(), lengthInch: lengthInchC.text.trim(), breadthFeet: breadthFeetC.text.trim(), breadthInch: breadthInchC.text.trim(), buildingShape: selectedShape ?? "");
+                                                cubit.measurementCalculation(lengthFeet: lengthFeetC.text, lengthInch: lengthInchC.text, lengthTotal: lengthTotal, breadthFeet: breadthFeetC.text, breadthInch: breadthInchC.text, breadthTotal: breadthTotal, buildingShape: selectedShape ?? "", areaTotal: areaTotal);
+                                              }
+                                              : null,
+                                      decoration: InputDecoration(
+                                        filled: index != null,
+                                        fillColor: Colors.grey.shade200,
+                                        errorText: buildingShapeEr.isEmpty ? null : buildingShapeEr,
+                                        contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
+                                        hintText: "Select Shape",
+                                        hintStyle: AppTextStyle.ts14RB.copyWith(color: AppColors.grey),
+                                        border: OutlineInputBorder(borderSide: BorderSide(color: index != null ? Colors.grey.shade200 : Colors.black), borderRadius: BorderRadius.circular(8.0)),
                                       ),
                                     ),
                                   ),
-                                ),
 
-                                const SizedBox(width: 20),
+                                  const SizedBox(width: 20),
 
-                                CustomRichText(
-                                  labelText: "Area  ",
-                                  labelStyle: AppTextStyle.ts14MB,
-                                  valueText: "  $areaTotal",
-                                ),
-                              ],
+                                  CustomRichText(labelText: "Area  ", labelStyle: AppTextStyle.ts14MB, valueText: "  $areaTotal"),
+                                ],
+                              ),
                             ),
-                          ),
 
-                          const Divider(thickness: 1.5, color: Colors.black),
+                            const Divider(thickness: 1.5, color: Colors.black),
 
-                          // Buttons
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(dialogContext);
-                                    clearFields();
-                                  },
-                                  child: Text("Cancel", style: AppTextStyle.ts16MB.copyWith(color: Colors.red)),
-                                ),
-
-                                TextButton(
-                                  onPressed: () {
-                                    final bool result = cubit.saveMesurement(
-                                      index: index,
-                                      selectedBuildingSpace: selectedBuildingSpace,
-                                      lengthFeet: lengthFeetC.text.trim(),
-                                      lengthInch: lengthInchC.text.trim(),
-                                      breadthFeet: breadthFeetC.text.trim(),
-                                      breadthInch: breadthInchC.text.trim(),
-                                      buildingShape: selectedShape ?? "",
-                                      lengthTotal: lengthTotal,
-                                      breadthTotal: breadthTotal,
-                                      areaTotal: areaTotal,
-                                    );
-                                    if (result) {
+                            // Buttons
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  TextButton(
+                                    onPressed: () {
                                       Navigator.pop(dialogContext);
                                       clearFields();
-                                    }
-                                  },
-                                  child: Text("Save", style: AppTextStyle.ts16MB.copyWith(color: Colors.green)),
-                                ),
-                              ],
+                                    },
+                                    child: Text("Cancel", style: AppTextStyle.ts16MB.copyWith(color: Colors.red)),
+                                  ),
+
+                                  TextButton(
+                                    onPressed: () {
+                                      final bool result = cubit.saveMesurement(
+                                        index: index,
+                                        selectedBuildingSpace: selectedBuildingSpace,
+                                        lengthFeet: lengthFeetC.text.trim(),
+                                        lengthInch: lengthInchC.text.trim(),
+                                        breadthFeet: breadthFeetC.text.trim(),
+                                        breadthInch: breadthInchC.text.trim(),
+                                        buildingShape: selectedShape ?? "",
+                                        lengthTotal: lengthTotal,
+                                        breadthTotal: breadthTotal,
+                                        areaTotal: areaTotal,
+                                      );
+                                      if (result) {
+                                        Navigator.pop(dialogContext);
+                                        clearFields();
+                                      }
+                                    },
+                                    child: Text("Save", style: AppTextStyle.ts16MB.copyWith(color: Colors.green)),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   );
@@ -612,16 +453,7 @@ class _MeasurementDetailsPageState extends State<MeasurementDetailsPage> {
     );
   }
 
-  Padding textWidget({
-    required String lable,
-    required TextEditingController feetC,
-    required TextEditingController inchC,
-    required String feetEr,
-    required String inchEr,
-    required double total,
-    required ValueChanged<String> feetOnChanged,
-    required ValueChanged<String> inchOnChanged,
-  }) {
+  Padding textWidget({required String lable, required TextEditingController feetC, required TextEditingController inchC, required String feetEr, required String inchEr, required double total, required ValueChanged<String> feetOnChanged, required ValueChanged<String> inchOnChanged}) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -641,35 +473,16 @@ class _MeasurementDetailsPageState extends State<MeasurementDetailsPage> {
                 child: Row(
                   spacing: 8.0,
                   children: [
-                    Expanded(
-                      child: TextField(
-                        controller: feetC,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                        onChanged: feetOnChanged,
-                        decoration: InputDecoration(hintText: "Feet", errorText: feetEr.isEmpty ? null : feetEr),
-                      ),
-                    ),
+                    Expanded(child: TextField(controller: feetC, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], onChanged: feetOnChanged, decoration: InputDecoration(hintText: "Feet", errorText: feetEr.isEmpty ? null : feetEr))),
 
-                    Expanded(
-                      child: TextField(
-                        controller: inchC,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                        onChanged: inchOnChanged,
-                        decoration: InputDecoration(hintText: "Inch", errorText: inchEr.isEmpty ? null : inchEr),
-                      ),
-                    ),
+                    Expanded(child: TextField(controller: inchC, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], onChanged: inchOnChanged, decoration: InputDecoration(hintText: "Inch", errorText: inchEr.isEmpty ? null : inchEr))),
                   ],
                 ),
               ),
 
               const Padding(padding: EdgeInsets.only(top: 15), child: Text("=")),
 
-              Padding(
-                padding: const EdgeInsets.only(top: 10),
-                child: CustomRichText(labelText: "Total  ", labelStyle: AppTextStyle.ts14MB, valueText: " $total"),
-              ),
+              Padding(padding: const EdgeInsets.only(top: 10), child: CustomRichText(labelText: "Total  ", labelStyle: AppTextStyle.ts14MB, valueText: " $total")),
             ],
           ),
 
@@ -687,13 +500,7 @@ class _MeasurementDetailsPageState extends State<MeasurementDetailsPage> {
       builder: (dialogContext) {
         return AlertDialog(
           shape: RoundedRectangleBorder(),
-          title: Row(
-            spacing: 16.0,
-            children: [
-              Icon(Icons.info, color: Colors.blueGrey, size: 30),
-              Text("Remove Data", style: AppTextStyle.ts16MB),
-            ],
-          ),
+          title: Row(spacing: 16.0, children: [Icon(Icons.info, color: Colors.blueGrey, size: 30), Text("Remove Data", style: AppTextStyle.ts16MB)]),
           content: Text("Are you sure you want to remove this data?", style: AppTextStyle.ts14RB),
           actions: [
             TextButton(

@@ -21,13 +21,7 @@ class OpenCaseFormPage extends StatefulWidget {
   final int initId;
   final int siteEngId;
   final int siteSubmitted;
-  const OpenCaseFormPage({
-    super.key,
-    required this.siteId,
-    required this.initId,
-    required this.siteEngId,
-    required this.siteSubmitted,
-  });
+  const OpenCaseFormPage({super.key, required this.siteId, required this.initId, required this.siteEngId, required this.siteSubmitted});
 
   @override
   State<OpenCaseFormPage> createState() => _OpenCaseFormPageState();
@@ -50,12 +44,6 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
   // of on every build() call — otherwise every rebuild wipes out whatever
   // the user has already typed.
   bool _fieldsInitialized = false;
-
-  @override
-  void initState() {
-    super.initState();
-    context.read<OpenCaseCubit>().fetchOpenCaseBySiteId(widget.siteId);
-  }
 
   @override
   void dispose() {
@@ -145,14 +133,7 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
   DateTime? _parseDate(String? dateStr) {
     if (dateStr == null || dateStr.trim().isEmpty) return null;
 
-    final formats = [
-      'yyyy-MM-ddTHH:mm:ss',
-      'yyyy-MM-dd',
-      'dd-MM-yyyy',
-      'yyyy-MMM-dd hh:mm:ss:a',
-      'yyyy-MMMM-dd hh:mm:ss:a',
-      'dd MMM yyyy',
-    ];
+    final formats = ['yyyy-MM-ddTHH:mm:ss', 'yyyy-MM-dd', 'dd-MM-yyyy', 'yyyy-MMM-dd hh:mm:ss:a', 'yyyy-MMMM-dd hh:mm:ss:a', 'dd MMM yyyy'];
 
     for (var pattern in formats) {
       try {
@@ -211,12 +192,7 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                     if (itemData.type == "MULTISELECT") {
                                       List<SpinnerMaster> options = state.spinnerMaster[itemData.name] ?? [];
 
-                                      multiDropdownItems =
-                                          options
-                                              .map((e) => e.value)
-                                              .whereType<String>()
-                                              .where((v) => v.isNotEmpty)
-                                              .toList();
+                                      multiDropdownItems = options.map((e) => e.value).whereType<String>().where((v) => v.isNotEmpty).toList();
                                     }
 
                                     return Padding(
@@ -231,14 +207,10 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                                       // found (indexWhere == -1) before indexing.
                                                       if (latIndex == -1 || lngIndex == -1) return;
 
-                                                      bool permission =
-                                                          await CheckLocationPermission.checkPermissionGps(
-                                                            context: context,
-                                                          );
+                                                      bool permission = await CheckLocationPermission.checkPermissionGps(context: context);
 
                                                       if (permission) {
-                                                        var location =
-                                                            await CheckLocationPermission.getCurrentLocation();
+                                                        var location = await CheckLocationPermission.getCurrentLocation();
                                                         final latText = location.latitude.toString();
                                                         final lngText = location.longitude.toString();
 
@@ -257,15 +229,7 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                                         Row(
                                                           mainAxisSize: MainAxisSize.min,
                                                           children: [
-                                                            Text(
-                                                              "${itemData.label} (long press below to get value)",
-                                                              style: AppTextStyle.ts14MB.copyWith(
-                                                                color:
-                                                                    itemData.isMandatory == true
-                                                                        ? AppColors.red
-                                                                        : AppColors.black,
-                                                              ),
-                                                            ),
+                                                            Text("${itemData.label} (long press below to get value)", style: AppTextStyle.ts14MB.copyWith(color: itemData.isMandatory == true ? AppColors.red : AppColors.black)),
                                                             itemData.label == "Longitude *"
                                                                 ? SizedBox.shrink()
                                                                 : Expanded(
@@ -274,26 +238,16 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                                                     onPressed: () async {
                                                                       if (latIndex == -1 || lngIndex == -1) return;
 
-                                                                      bool permission =
-                                                                          await CheckLocationPermission.checkPermissionGps(
-                                                                            context: context,
-                                                                          );
+                                                                      bool permission = await CheckLocationPermission.checkPermissionGps(context: context);
                                                                       if (!permission) return;
                                                                       if (!context.mounted) return;
-                                                                      final result = await Navigator.pushNamed(
-                                                                        context,
-                                                                        AppRoutesName.mapPage,
-                                                                      );
+                                                                      final result = await Navigator.pushNamed(context, AppRoutesName.mapPage);
                                                                       if (result != null && result is LatLng) {
                                                                         setState(() {
-                                                                          textBoxC[latIndex]!.text =
-                                                                              result.latitude.toString();
-                                                                          textBoxC[lngIndex]!.text =
-                                                                              result.longitude.toString();
-                                                                          state.fields[latIndex].value =
-                                                                              result.latitude.toString();
-                                                                          state.fields[lngIndex].value =
-                                                                              result.longitude.toString();
+                                                                          textBoxC[latIndex]!.text = result.latitude.toString();
+                                                                          textBoxC[lngIndex]!.text = result.longitude.toString();
+                                                                          state.fields[latIndex].value = result.latitude.toString();
+                                                                          state.fields[lngIndex].value = result.longitude.toString();
                                                                         });
                                                                       }
                                                                     },
@@ -303,26 +257,14 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                                           ],
                                                         ),
                                                         SizedBox(height: 5.0),
-                                                        AbsorbPointer(
-                                                          child: CustomTextformField(
-                                                            keyboardType: _getKeyboardType(itemData.dataType),
-                                                            controller: textBoxC[index],
-                                                            readOnly: true,
-                                                            lableTextColor:
-                                                                itemData.isMandatory == true
-                                                                    ? AppColors.red
-                                                                    : AppColors.black,
-                                                          ),
-                                                        ),
+                                                        AbsorbPointer(child: CustomTextformField(keyboardType: _getKeyboardType(itemData.dataType), controller: textBoxC[index], readOnly: true, lableTextColor: itemData.isMandatory == true ? AppColors.red : AppColors.black)),
                                                       ],
                                                     ),
                                                   )
                                                   : CustomTextformField(
                                                     keyboardType: _getKeyboardType(itemData.dataType),
-                                                    lableTextColor:
-                                                        itemData.label!.contains("*") ? AppColors.red : AppColors.black,
-                                                    borderColor:
-                                                        itemData.label!.contains("*") ? AppColors.red : AppColors.grey,
+                                                    lableTextColor: itemData.label!.contains("*") ? AppColors.red : AppColors.black,
+                                                    borderColor: itemData.label!.contains("*") ? AppColors.red : AppColors.grey,
                                                     controller: textBoxC[index],
                                                     labelText: itemData.label,
                                                     onChanged: (value) {
@@ -332,14 +274,10 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                               : itemData.type == "TEXTAREA"
                                               ? CustomTextformField(
                                                 maxLines: 3,
-                                                maxLength:
-                                                    (itemData.fieldLength != null && itemData.fieldLength! > 0)
-                                                        ? itemData.fieldLength
-                                                        : null,
+                                                maxLength: (itemData.fieldLength != null && itemData.fieldLength! > 0) ? itemData.fieldLength : null,
                                                 keyboardType: _getKeyboardType(itemData.dataType),
                                                 controller: textAreaC[index],
-                                                lableTextColor:
-                                                    itemData.isMandatory == true ? AppColors.red : AppColors.black,
+                                                lableTextColor: itemData.isMandatory == true ? AppColors.red : AppColors.black,
                                                 labelText: itemData.label,
                                                 onChanged: (value) {
                                                   itemData.value = value;
@@ -347,40 +285,19 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                               )
                                               : itemData.type == "COMBOBOX"
                                               ? DropdownButtonFormField(
-                                                initialValue:
-                                                    (dropdownValues[index] != null &&
-                                                            dropdownList.any(
-                                                              (item) => item.value.toString() == dropdownValues[index],
-                                                            ))
-                                                        ? dropdownValues[index]
-                                                        : null,
+                                                initialValue: (dropdownValues[index] != null && dropdownList.any((item) => item.value.toString() == dropdownValues[index])) ? dropdownValues[index] : null,
                                                 decoration: InputDecoration(
                                                   contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 12),
                                                   labelText: itemData.label,
                                                   labelStyle: AppTextStyle.ts14RB.copyWith(color: AppColors.red),
-                                                  enabledBorder: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(8.0),
-                                                    borderSide: BorderSide(color: AppColors.grey),
-                                                  ),
-                                                  focusedBorder: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(8.0),
-                                                    borderSide: BorderSide(color: AppColors.grey),
-                                                  ),
-                                                  errorBorder: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(8.0),
-                                                    borderSide: BorderSide(color: AppColors.red),
-                                                  ),
-                                                  focusedErrorBorder: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(8.0),
-                                                    borderSide: BorderSide(color: AppColors.red),
-                                                  ),
+                                                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0), borderSide: BorderSide(color: AppColors.grey)),
+                                                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0), borderSide: BorderSide(color: AppColors.grey)),
+                                                  errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0), borderSide: BorderSide(color: AppColors.red)),
+                                                  focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0), borderSide: BorderSide(color: AppColors.red)),
                                                 ),
                                                 items:
                                                     dropdownList.map<DropdownMenuItem<String>>((spinner) {
-                                                      return DropdownMenuItem<String>(
-                                                        value: spinner.value.toString(),
-                                                        child: Text("${spinner.value}"),
-                                                      );
+                                                      return DropdownMenuItem<String>(value: spinner.value.toString(), child: Text("${spinner.value}"));
                                                     }).toList(),
                                                 onChanged: (String? value) {
                                                   setState(() {
@@ -391,10 +308,7 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                               )
                                               : itemData.type == "MULTISELECT"
                                               ? MultiSelectDropdown(
-                                                labelStyle:
-                                                    itemData.isMandatory == true
-                                                        ? AppTextStyle.ts12RB.copyWith(color: AppColors.red)
-                                                        : AppTextStyle.ts12RB,
+                                                labelStyle: itemData.isMandatory == true ? AppTextStyle.ts12RB.copyWith(color: AppColors.red) : AppTextStyle.ts12RB,
                                                 options: multiDropdownItems,
                                                 selectedValues: multiDropdownValues[index] ?? [],
                                                 label: itemData.label!,
@@ -409,12 +323,7 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                               ? Column(
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
-                                                  sumTotalArea == 0.0
-                                                      ? SizedBox()
-                                                      : SizedBox(
-                                                        width: double.infinity,
-                                                        child: Text("Sum of Area: $sumTotalArea"),
-                                                      ),
+                                                  sumTotalArea == 0.0 ? SizedBox() : SizedBox(width: double.infinity, child: Text("Sum of Area: $sumTotalArea")),
                                                   const SizedBox(height: 15.0),
                                                   SizedBox(
                                                     width: double.infinity,
@@ -423,11 +332,7 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                                       borderRadius: 0,
                                                       text: "${itemData.label} ->",
                                                       onPressed: () async {
-                                                        final result = await Navigator.pushNamed(
-                                                          context,
-                                                          AppRoutesName.measurementDetailsPage,
-                                                          arguments: itemData.value,
-                                                        );
+                                                        final result = await Navigator.pushNamed(context, AppRoutesName.measurementDetailsPage, arguments: itemData.value);
 
                                                         if (result != null && result is Map) {
                                                           final newJson = result['jsonString'] as String;
@@ -450,10 +355,7 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                                 lastDate: DateTime.now(),
                                                 initialDate: _parseDate(dateControllers[index]!.text),
                                                 textController: dateControllers[index]!,
-                                                labelStyle:
-                                                    itemData.isMandatory == true
-                                                        ? AppTextStyle.ts12RB.copyWith(color: AppColors.red)
-                                                        : AppTextStyle.ts12RB,
+                                                labelStyle: itemData.isMandatory == true ? AppTextStyle.ts12RB.copyWith(color: AppColors.red) : AppTextStyle.ts12RB,
                                                 label: itemData.label!,
                                                 onDateSelected: (date) {
                                                   itemData.value = dateControllers[index]!.text;
@@ -462,25 +364,12 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                               : itemData.type == "WEBVIEW"
                                               ? Row(
                                                 children: [
-                                                  Expanded(
-                                                    child: Text(
-                                                      itemData.value ?? "",
-                                                      style: AppTextStyle.ts12RB.copyWith(
-                                                        color: Colors.blue,
-                                                        decoration: TextDecoration.underline,
-                                                      ),
-                                                    ),
-                                                  ),
+                                                  Expanded(child: Text(itemData.value ?? "", style: AppTextStyle.ts12RB.copyWith(color: Colors.blue, decoration: TextDecoration.underline))),
                                                   TextButton(
                                                     onPressed: () async {
                                                       final urlString = itemData.value?.trim() ?? "";
                                                       if (urlString.isEmpty) {
-                                                        ScaffoldMessenger.of(context).showSnackBar(
-                                                          SnackBar(
-                                                            backgroundColor: Colors.red,
-                                                            content: Text("URL is empty", style: AppTextStyle.ts14MW),
-                                                          ),
-                                                        );
+                                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text("URL is empty", style: AppTextStyle.ts14MW)));
                                                         return;
                                                       }
 
@@ -488,26 +377,13 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                                       try {
                                                         uri = Uri.parse(urlString);
                                                       } catch (_) {
-                                                        ScaffoldMessenger.of(context).showSnackBar(
-                                                          SnackBar(
-                                                            backgroundColor: Colors.red,
-                                                            content: Text("Invalid URL", style: AppTextStyle.ts14MW),
-                                                          ),
-                                                        );
+                                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text("Invalid URL", style: AppTextStyle.ts14MW)));
                                                         return;
                                                       }
 
                                                       if (!await canLaunchUrl(uri)) {
                                                         if (!context.mounted) return;
-                                                        ScaffoldMessenger.of(context).showSnackBar(
-                                                          SnackBar(
-                                                            backgroundColor: Colors.red,
-                                                            content: Text(
-                                                              "Unable to open the URL",
-                                                              style: AppTextStyle.ts14MW,
-                                                            ),
-                                                          ),
-                                                        );
+                                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text("Unable to open the URL", style: AppTextStyle.ts14MW)));
                                                         return;
                                                       }
 
@@ -515,21 +391,10 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                                         await launchUrl(uri, mode: LaunchMode.inAppWebView);
                                                       } catch (e) {
                                                         if (!context.mounted) return;
-                                                        ScaffoldMessenger.of(context).showSnackBar(
-                                                          SnackBar(
-                                                            backgroundColor: Colors.red,
-                                                            content: Text(
-                                                              "Failed to launch: $e",
-                                                              style: AppTextStyle.ts14MW,
-                                                            ),
-                                                          ),
-                                                        );
+                                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text("Failed to launch: $e", style: AppTextStyle.ts14MW)));
                                                       }
                                                     },
-                                                    child: Text(
-                                                      "Click here",
-                                                      style: AppTextStyle.ts12RB.copyWith(color: AppColors.green),
-                                                    ),
+                                                    child: Text("Click here", style: AppTextStyle.ts12RB.copyWith(color: AppColors.green)),
                                                   ),
                                                 ],
                                               )
@@ -577,17 +442,7 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                           final raw = textBoxC[i]?.text.trim() ?? "";
                                           final charges = int.tryParse(raw);
                                           if (charges == null || charges == 0) {
-                                            showDialog(
-                                              context: context,
-                                              builder:
-                                                  (context) => CustomAlertDialog(
-                                                    title: "",
-                                                    content: "Charges cannot be 0.",
-                                                    onConfirm: () {},
-                                                    confirmText: "OK",
-                                                    confirmTextStyle: AppTextStyle.ts14MB.copyWith(color: Colors.teal),
-                                                  ),
-                                            );
+                                            showDialog(context: context, builder: (context) => CustomAlertDialog(title: "", content: "Charges cannot be 0.", onConfirm: () {}, confirmText: "OK", confirmTextStyle: AppTextStyle.ts14MB.copyWith(color: Colors.teal)));
                                             return;
                                           }
                                         }
@@ -604,11 +459,7 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                     text: "FINAL SUBMIT CASE",
                                     textStyle: AppTextStyle.ts14BW,
                                     onPressed: () {
-                                      context.read<OpenCaseCubit>().finalSubmitMethod(
-                                        siteId: widget.siteId,
-                                        initId: widget.initId,
-                                        siteEngId: widget.siteEngId,
-                                      );
+                                      context.read<OpenCaseCubit>().finalSubmitMethod(siteId: widget.siteId, initId: widget.initId, siteEngId: widget.siteEngId);
                                     },
                                   ),
                                 ),
@@ -618,8 +469,7 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                       SizedBox(height: 5.0),
                     ],
                   ),
-                  if (widget.siteSubmitted == 1)
-                    Positioned.fill(child: AbsorbPointer(child: ColoredBox(color: Colors.white38))),
+                  if (widget.siteSubmitted == 1) Positioned.fill(child: AbsorbPointer(child: ColoredBox(color: Colors.white38))),
                 ],
               );
             }
@@ -627,13 +477,9 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
           },
           listener: (BuildContext context, OpenCaseState state) {
             if (state is OpenCaseErrorState) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(backgroundColor: Colors.red, content: Text(state.message, style: AppTextStyle.ts14MW)),
-              );
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text(state.message, style: AppTextStyle.ts14MW)));
             } else if (state is OpenCaseSuccessState) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(backgroundColor: Colors.green, content: Text(state.message, style: AppTextStyle.ts14MW)),
-              );
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.green, content: Text(state.message, style: AppTextStyle.ts14MW)));
             }
           },
         ),

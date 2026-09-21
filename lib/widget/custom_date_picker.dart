@@ -16,20 +16,7 @@ class CustomDatePicker extends StatefulWidget {
   final TextEditingController textController;
   final bool enabled;
 
-  const CustomDatePicker({
-    super.key,
-    required this.label,
-    required this.onDateSelected,
-    required this.textController,
-    this.initialDate,
-    this.firstDate,
-    this.lastDate,
-    this.labelStyle,
-    this.hintText,
-    this.hintStyle,
-    this.dateFormat,
-    this.enabled = true,
-  });
+  const CustomDatePicker({super.key, required this.label, required this.onDateSelected, required this.textController, this.initialDate, this.firstDate, this.lastDate, this.labelStyle, this.hintText, this.hintStyle, this.dateFormat, this.enabled = true});
 
   @override
   State<CustomDatePicker> createState() => _CustomDatePickerState();
@@ -37,37 +24,72 @@ class CustomDatePicker extends StatefulWidget {
 
 class _CustomDatePickerState extends State<CustomDatePicker> {
   DateTime? _selectedDate;
+  // its showing date picker
 
-  Future<void> _pickDate() async {
-    final DateTime? picked = await showDatePicker(
+  // Future<void> _pickDate() async {
+  //   final DateTime? picked = await showDatePicker(
+  //     context: context,
+  //     initialDate: _selectedDate ?? widget.initialDate ?? DateTime.now(),
+  //     firstDate: widget.firstDate ?? DateTime(2000),
+  //     lastDate: widget.lastDate ?? DateTime(2100),
+  //     builder: (context, child) {
+  //       return Theme(
+  //         data: Theme.of(context).copyWith(
+  //           colorScheme: ColorScheme.light(
+  //             primary: AppColors.blue,
+  //             onPrimary: Colors.white,
+  //             onSurface: Colors.black,
+  //           ),
+  //           textButtonTheme: TextButtonThemeData(
+  //             style: TextButton.styleFrom(foregroundColor: AppColors.blue),
+  //           ),
+  //         ),
+  //         child: child!,
+  //       );
+  //     },
+  //   );
+
+  //   if (picked != null && picked != _selectedDate) {
+  //     setState(() {
+  //       _selectedDate = picked;
+  //       // Update the controller with formatted date
+  //       final dateFormat = widget.dateFormat ?? DateFormat('yyyy-MM-dd');
+  //       widget.textController.text = dateFormat.format(picked);
+  //     });
+  //     widget.onDateSelected(picked);
+  //   }
+  // }
+
+  // Pick only Year
+  Future<void> _pickYear() async {
+    final DateTime? picked = await showDialog<DateTime>(
       context: context,
-      initialDate: _selectedDate ?? widget.initialDate ?? DateTime.now(),
-      firstDate: widget.firstDate ?? DateTime(2000),
-      lastDate: widget.lastDate ?? DateTime(2100),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: AppColors.blue,
-              onPrimary: Colors.white,
-              onSurface: Colors.black,
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(foregroundColor: AppColors.blue),
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Select Year'),
+          content: SizedBox(
+            width: double.maxFinite,
+            height: 300,
+            child: YearPicker(
+              firstDate: widget.firstDate ?? DateTime(1900),
+              lastDate: widget.lastDate ?? DateTime(2100),
+              selectedDate: _selectedDate ?? widget.initialDate ?? DateTime.now(),
+              onChanged: (DateTime date) {
+                Navigator.of(context).pop(date);
+              },
             ),
           ),
-          child: child!,
         );
       },
     );
 
-    if (picked != null && picked != _selectedDate) {
+    if (picked != null) {
       setState(() {
         _selectedDate = picked;
-        // Update the controller with formatted date
-        final dateFormat = widget.dateFormat ?? DateFormat('yyyy-MM-dd');
-        widget.textController.text = dateFormat.format(picked);
+
+        widget.textController.text = picked.year.toString();
       });
+
       widget.onDateSelected(picked);
     }
   }
@@ -75,7 +97,9 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: widget.enabled ? _pickDate : null,
+      // onTap: widget.enabled ? _pickDate : null,
+      onTap: widget.enabled ? _pickYear : null,
+
       child: AbsorbPointer(
         child: TextFormField(
           controller: widget.textController,
@@ -84,27 +108,12 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
             hintStyle: widget.hintStyle ?? AppTextStyle.ts14RB,
             labelText: widget.label,
             labelStyle: widget.labelStyle ?? AppTextStyle.ts12RB,
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.0),
-              borderSide: BorderSide(color: AppColors.grey),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.0),
-              borderSide: BorderSide(color: AppColors.grey),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.0),
-              borderSide: BorderSide(color: AppColors.red),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.0),
-              borderSide: BorderSide(color: AppColors.red),
-            ),
-            // suffixIcon: const Icon(Icons.calendar_today),
-            contentPadding: const EdgeInsets.symmetric(
-              vertical: 12.0,
-              horizontal: 12,
-            ),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0), borderSide: BorderSide(color: AppColors.grey)),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0), borderSide: BorderSide(color: AppColors.grey)),
+            errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0), borderSide: BorderSide(color: AppColors.red)),
+            focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0), borderSide: BorderSide(color: AppColors.red)),
+            suffixIcon: const Icon(Icons.calendar_today),
+            contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 12),
           ),
         ),
       ),

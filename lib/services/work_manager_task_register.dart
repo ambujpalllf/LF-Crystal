@@ -41,22 +41,10 @@ class WorkManagerTaskRegister {
 
   static void syncDataToServer({required SurveyDetail updatedSurveyDetail}) {
     final surveyDetailString = jsonEncode(updatedSurveyDetail.toJson());
-    // debugPrint("Survey details $surveyDetailString");
-    Workmanager().registerOneOffTask(
-      '${WorkmanagerTaskKey.syncDataToServer}_${DateTime.now().millisecondsSinceEpoch}',
-      WorkmanagerTaskKey.syncDataToServer,
-      inputData: {"surveydetails": surveyDetailString},
-      constraints: Constraints(networkType: NetworkType.connected),
-    );
+    Workmanager().registerOneOffTask(WorkmanagerTaskKey.syncDataToServer, WorkmanagerTaskKey.syncDataToServer, inputData: {"surveydetails": surveyDetailString}, constraints: Constraints(networkType: NetworkType.connected));
   }
 
   static void syncLocation() {
-    Workmanager().registerPeriodicTask(
-      WorkmanagerTaskKey.syncLocation,
-      WorkmanagerTaskKey.syncLocation,
-      initialDelay: Duration(seconds: 2),
-      frequency: Duration(minutes: 15),
-      constraints: Constraints(networkType: NetworkType.connected),
-    );
+    Workmanager().registerPeriodicTask(WorkmanagerTaskKey.syncLocation, WorkmanagerTaskKey.syncLocation, initialDelay: Duration(seconds: 2), frequency: Duration(minutes: 15), constraints: Constraints(networkType: NetworkType.connected));
   }
 }
