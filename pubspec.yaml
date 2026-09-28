@@ -66,6 +66,7 @@ dependencies:
   firebase_analytics: ^12.1.0
   geocoding: ^4.0.0
   flutter_secure_storage: ^10.3.4
+  speech_to_text: ^7.4.0
 
 dev_dependencies:
   flutter_test:
