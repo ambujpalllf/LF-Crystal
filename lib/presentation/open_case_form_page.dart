@@ -316,6 +316,8 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                                   )
                                                   : CustomTextformField(
                                                     keyboardType: _getKeyboardType(itemData.dataType),
+                                                    maxLength:
+                                                        (itemData.fieldLength ?? 0) > 0 ? itemData.fieldLength : null,
                                                     lableTextColor:
                                                         itemData.label!.contains("*") ? AppColors.red : AppColors.black,
                                                     borderColor:
@@ -343,12 +345,12 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                                 },
                                               )
                                               : itemData.type == "COMBOBOX"
-                                              ? DropdownButtonFormField(
+                                              ? DropdownButtonFormField<String>(
                                                 initialValue:
-                                                    (dropdownValues[index] != null &&
+                                                    dropdownValues[index] != null &&
                                                             dropdownList.any(
-                                                              (item) => item.value.toString() == dropdownValues[index],
-                                                            ))
+                                                              (item) => item.key.toString() == dropdownValues[index],
+                                                            )
                                                         ? dropdownValues[index]
                                                         : null,
                                                 decoration: InputDecoration(
@@ -375,7 +377,7 @@ class _OpenCaseFormPageState extends State<OpenCaseFormPage> {
                                                 items:
                                                     dropdownList.map<DropdownMenuItem<String>>((spinner) {
                                                       return DropdownMenuItem<String>(
-                                                        value: spinner.value.toString(),
+                                                        value: spinner.key.toString(),
                                                         child: Text("${spinner.value}"),
                                                       );
                                                     }).toList(),

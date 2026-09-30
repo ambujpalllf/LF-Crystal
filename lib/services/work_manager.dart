@@ -114,13 +114,22 @@ Future<void> singleImageSync({required ImageEntity imageData, required DateTime 
 
     debugPrint("Submitting image with data: $bodyData");
 
-    final response = await ApiServices.postSingleMultipartRequestWithAuth(fields: bodyData, imageFieldName: "file", url: url, imagesFile: File(imageData.imagePath));
+    final response = await ApiServices.postSingleMultipartRequestWithAuth(
+      fields: bodyData,
+      imageFieldName: "file",
+      url: url,
+      imagesFile: File(imageData.imagePath),
+    );
 
     debugPrint("Server response: $response");
 
     if (response["resultCode"] == 1) {
-      final int photoId = response["photoId"] is int ? response["photoId"] : int.tryParse(response["photoId"].toString()) ?? 0;
-      final int serialOrder = response["serialOrder"] is int ? response["serialOrder"] : int.tryParse(response["serialOrder"].toString()) ?? 0;
+      final int photoId =
+          response["photoId"] is int ? response["photoId"] : int.tryParse(response["photoId"].toString()) ?? 0;
+      final int serialOrder =
+          response["serialOrder"] is int
+              ? response["serialOrder"]
+              : int.tryParse(response["serialOrder"].toString()) ?? 0;
       await DBHelper.updateImage(
         ImageEntity(
           imagePath: imageData.imagePath,
@@ -162,17 +171,35 @@ Future<void> multiImageSync({required int siteId}) async {
     // List<ImageEntity> unsyncedImages = imageList.where((item) => item.sync == 0).toList();
     String lastSuccessMessage = "";
     for (var item in imageList) {
-      final Map<String, String> bodyData = {'SITE_ID': "${item.siteId}", 'CATEGORY_TYPE': item.selectedCategoryTitle, 'SubCategory': item.selectedSubCategoryTitle, 'mob_datetime': DateFormat("yyyy-MMM-dd HH:mm:ss.SSS").format(item.moDateTime), 'image_lat': item.imgLatitude, 'image_lng': item.imgLongitude, 'lat_lng_accuracy': item.imgAccuracy, 'VALUER_EMP_ID': "$userId"};
+      final Map<String, String> bodyData = {
+        'SITE_ID': "${item.siteId}",
+        'CATEGORY_TYPE': item.selectedCategoryTitle,
+        'SubCategory': item.selectedSubCategoryTitle,
+        'mob_datetime': DateFormat("yyyy-MMM-dd HH:mm:ss.SSS").format(item.moDateTime),
+        'image_lat': item.imgLatitude,
+        'image_lng': item.imgLongitude,
+        'lat_lng_accuracy': item.imgAccuracy,
+        'VALUER_EMP_ID': "$userId",
+      };
 
       debugPrint("Submitting image with data: $bodyData");
 
-      final response = await ApiServices.postSingleMultipartRequestWithAuth(fields: bodyData, imageFieldName: "file", url: url, imagesFile: File(item.imagePath));
+      final response = await ApiServices.postSingleMultipartRequestWithAuth(
+        fields: bodyData,
+        imageFieldName: "file",
+        url: url,
+        imagesFile: File(item.imagePath),
+      );
       debugPrint("Server response: $response");
 
       if (response["resultCode"] == 1) {
-        final int photoId = response["photoId"] is int ? response["photoId"] : int.tryParse(response["photoId"].toString()) ?? 0;
+        final int photoId =
+            response["photoId"] is int ? response["photoId"] : int.tryParse(response["photoId"].toString()) ?? 0;
 
-        final int serialOrder = response["serialOrder"] is int ? response["serialOrder"] : int.tryParse(response["serialOrder"].toString()) ?? 0;
+        final int serialOrder =
+            response["serialOrder"] is int
+                ? response["serialOrder"]
+                : int.tryParse(response["serialOrder"].toString()) ?? 0;
         await DBHelper.updateImage(
           ImageEntity(
             id: item.id,
@@ -226,7 +253,18 @@ Future<void> syncDataToServerMehod(SurveyDetail updatedSurveyDetail) async {
             "visit_date": updatedSurveyDetail.basicDetails?.visitDate,
           },
           "SiteDetails": {
-            "Fields": updatedSurveyDetail.siteDetails?.fields?.map((field) => {"Label": field.label, "Name": field.name, "Type": field.type, "Value": field.value, "data_type": field.dataType}).toList(),
+            "Fields":
+                updatedSurveyDetail.siteDetails?.fields
+                    ?.map(
+                      (field) => {
+                        "Label": field.label,
+                        "Name": field.name,
+                        "Type": field.type,
+                        "Value": field.value,
+                        "data_type": field.dataType,
+                      },
+                    )
+                    .toList(),
           },
         },
       ],
