@@ -466,7 +466,7 @@ class CustomCardCubit extends Cubit<CustomCardState> {
       bool foundSurvey = false;
       bool hasUnfilledMandatory = false;
       Map<String, dynamic>? updatedFieldJsonStr;
-
+      dynamic updatedHomeData;
       final resultData = await DBHelper.getAllHomeData();
       for (var homeData in resultData) {
         for (var survey in homeData.surveyDetails!) {
@@ -481,7 +481,7 @@ class CustomCardCubit extends Cubit<CustomCardState> {
             }
 
             if (hasUnfilledMandatory) {
-              emit(CustomCardErrorState("Please fill survey details and Save it."));
+              emit(CustomCardErrorState("Please Enter all the (*) mark required details, before Final Submit."));
               return;
             }
             // Update siteEngAccepted
@@ -490,14 +490,13 @@ class CustomCardCubit extends Cubit<CustomCardState> {
             survey.basicDetails?.visitDate = DateFormat('d MMM yyyy hh:mm:ss').format(DateTime.now());
             // Prepare JSON and update local DB
             updatedFieldJsonStr = survey.toJson();
-            await DBHelper.updateHomeData(homeData);
+            // await DBHelper.updateHomeData(homeData);
+            updatedHomeData = homeData;
             break;
           }
         }
       }
-      fetchDataWithDB();
-      // final HomeData updatedHomeData = HomeData.fromJson(updatedFieldJsonStr!);
-      // await DBHelper.updateHomeData(updatedHomeData);
+      // fetchDataWithDB();
 
       if (!foundSurvey) {
         emit(CustomCardErrorState("Survey data not found for site ID $siteId"));
@@ -516,6 +515,8 @@ class CustomCardCubit extends Cubit<CustomCardState> {
       final response = await ApiServices.postRequestWithAuth(url, bodyData);
 
       if (response["status"] == "OK") {
+        await DBHelper.updateHomeData(updatedHomeData);
+        fetchDataWithDB();
         emit(CustomCardSuccessState(response["data"][0]["message"]));
       } else {
         emit(CustomCardErrorState(response["message"] ?? "Survey submission failed"));

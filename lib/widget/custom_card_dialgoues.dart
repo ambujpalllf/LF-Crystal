@@ -131,6 +131,7 @@ class CustomCardDialgoues {
                     children: [
                       Expanded(
                         child: CustomTextformField(
+                          enableSpeech: false,
                           controller: appointmentDateC,
                           readOnly: true,
                           suffixIcon: showDateError ? const Icon(Icons.error, color: Colors.red) : null,
@@ -154,6 +155,7 @@ class CustomCardDialgoues {
                       const SizedBox(width: 15.0),
                       Expanded(
                         child: CustomTextformField(
+                          enableSpeech: false,
                           controller: appointmentTimeC,
                           readOnly: true,
                           suffixIcon: showTimeError ? const Icon(Icons.error, color: Colors.red) : null,
@@ -338,6 +340,7 @@ class CustomCardDialgoues {
                       children: [
                         Expanded(
                           child: CustomTextformField(
+                            enableSpeech: false,
                             controller: appointmentDateC,
                             readOnly: true,
                             suffixIcon: showDateError ? const Icon(Icons.error, color: Colors.red) : null,
@@ -361,6 +364,7 @@ class CustomCardDialgoues {
                         const SizedBox(width: 15.0),
                         Expanded(
                           child: CustomTextformField(
+                            enableSpeech: false,
                             controller: appointmentTimeC,
                             readOnly: true,
                             suffixIcon: showTimeError ? const Icon(Icons.error, color: Colors.red) : null,

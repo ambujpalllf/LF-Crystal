@@ -128,10 +128,12 @@ import 'package:lf_crystal/constants/app_text_style.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class CustomTextformField extends StatefulWidget {
+  final FocusNode? focusNode;
   final TextEditingController? controller;
   final String? labelText;
   final String? hintText;
   final String? errorText;
+  final int? errorMaxLines;
   final TextStyle? lableTextStyle;
   final TextStyle? hintTextStyle;
   final bool obscureText;
@@ -164,12 +166,14 @@ class CustomTextformField extends StatefulWidget {
 
   const CustomTextformField({
     super.key,
+    this.focusNode,
     this.controller,
     this.labelText,
     this.hintText,
     this.lableTextStyle,
     this.hintTextStyle,
     this.errorText,
+    this.errorMaxLines,
     this.obscureText = false,
     this.readOnly = false,
     this.filled,
@@ -365,6 +369,7 @@ class _CustomTextformFieldState extends State<CustomTextformField> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      focusNode: widget.focusNode,
       controller: widget.controller,
       cursorColor: widget.cursorColor,
       readOnly: widget.readOnly,
@@ -396,7 +401,7 @@ class _CustomTextformFieldState extends State<CustomTextformField> {
         hintText: widget.hintText,
 
         errorText: widget.errorText,
-
+        errorMaxLines: widget.errorMaxLines,
         hintMaxLines: widget.maxHintLines,
 
         hintStyle: widget.hintTextStyle ?? AppTextStyle.ts14RB.copyWith(color: widget.hintTextColor ?? AppColors.black),

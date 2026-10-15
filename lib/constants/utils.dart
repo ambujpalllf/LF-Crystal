@@ -80,7 +80,12 @@ class Utils {
   // }
 
   // date pick function
-  static Future<DateTime?> showCustomDatePicker({required BuildContext context, required DateTime initialDate, DateTime? firstDate, DateTime? lastDate}) async {
+  static Future<DateTime?> showCustomDatePicker({
+    required BuildContext context,
+    required DateTime initialDate,
+    DateTime? firstDate,
+    DateTime? lastDate,
+  }) async {
     DateTime tempSelectedDate = initialDate;
 
     return showModalBottomSheet<DateTime>(
@@ -117,7 +122,10 @@ class Utils {
   }
 
   // image picker from gallery or camera
-  static Future<File?> pickImage({required ImageSource source, CameraDevice preferredCameraDevice = CameraDevice.rear}) async {
+  static Future<File?> pickImage({
+    required ImageSource source,
+    CameraDevice preferredCameraDevice = CameraDevice.rear,
+  }) async {
     try {
       Permission permission;
 
@@ -135,7 +143,13 @@ class Utils {
         }
       }
 
-      final XFile? image = await _picker.pickImage(source: source, maxHeight: 1280, maxWidth: 1280, imageQuality: 80, preferredCameraDevice: preferredCameraDevice);
+      final XFile? image = await _picker.pickImage(
+        source: source,
+        maxHeight: 1280,
+        maxWidth: 1280,
+        imageQuality: 80,
+        preferredCameraDevice: preferredCameraDevice,
+      );
 
       //  USER CANCELS → NOT AN ERROR
       if (image == null) {
@@ -209,7 +223,13 @@ class Utils {
     File? result;
 
     while (quality > 10) {
-      var compressedFile = await FlutterImageCompress.compressAndGetFile(file.absolute.path, targetPath, quality: quality, minHeight: 1280, minWidth: 1280);
+      var compressedFile = await FlutterImageCompress.compressAndGetFile(
+        file.absolute.path,
+        targetPath,
+        quality: quality,
+        minHeight: 1280,
+        minWidth: 1280,
+      );
 
       if (compressedFile == null) return null;
 
@@ -260,7 +280,12 @@ class Utils {
 
   //   return file;
   // }
-  static Future<File> compressIfNeeded(File file, {int maxSizeKB = 400, int maxWidth = 1280, int maxHeight = 1280}) async {
+  static Future<File> compressIfNeeded(
+    File file, {
+    int maxSizeKB = 400,
+    int maxWidth = 1280,
+    int maxHeight = 1280,
+  }) async {
     try {
       final originalPath = file.path;
 
@@ -269,7 +294,13 @@ class Utils {
 
       // Try compressing until size is acceptable
       while (quality >= 30) {
-        compressed = await FlutterImageCompress.compressWithFile(originalPath, quality: quality, minWidth: maxWidth, minHeight: maxHeight, format: CompressFormat.jpeg);
+        compressed = await FlutterImageCompress.compressWithFile(
+          originalPath,
+          quality: quality,
+          minWidth: maxWidth,
+          minHeight: maxHeight,
+          format: CompressFormat.jpeg,
+        );
 
         if (compressed == null) break;
 
@@ -294,7 +325,16 @@ class Utils {
     }
   }
 
-  static Future<File> addMetadataToImage({required File imageFile, required double latitude, required double longitude, required double accuracy, required DateTime timestamp, required String imageTitle, required String imageSubTitle, String notes = ""}) async {
+  static Future<File> addMetadataToImage({
+    required File imageFile,
+    required double latitude,
+    required double longitude,
+    required double accuracy,
+    required DateTime timestamp,
+    required String imageTitle,
+    required String imageSubTitle,
+    String notes = "",
+  }) async {
     ///  Read image
     final originalBytes = await imageFile.readAsBytes();
     final originalImage = img.decodeImage(originalBytes);
@@ -336,7 +376,14 @@ class Utils {
     ///  Draw background
     const paddingX = 10;
     const paddingY = 6;
-    img.fillRect(originalImage, x1: leftPadding - paddingX, y1: yStart - paddingY, x2: leftPadding + maxLineWidth + paddingX, y2: yStart + totalTextHeight + paddingY, color: img.ColorRgba8(0, 0, 0, 30));
+    img.fillRect(
+      originalImage,
+      x1: leftPadding - paddingX,
+      y1: yStart - paddingY,
+      x2: leftPadding + maxLineWidth + paddingX,
+      y2: yStart + totalTextHeight + paddingY,
+      color: img.ColorRgba8(0, 0, 0, 30),
+    );
 
     ///  Draw text
     img.drawString(originalImage, text, font: font, x: leftPadding, y: yStart, color: img.ColorRgb8(255, 255, 255));
@@ -487,7 +534,16 @@ class Utils {
   //   }
   // }
 
-  static Future<File> addMetadataWithCanvas({required File imageFile, required double latitude, required double longitude, required double accuracy, required DateTime timestamp, required String imageTitle, required String imageSubTitle, String notes = ""}) async {
+  static Future<File> addMetadataWithCanvas({
+    required File imageFile,
+    required double latitude,
+    required double longitude,
+    required double accuracy,
+    required DateTime timestamp,
+    required String imageTitle,
+    required String imageSubTitle,
+    String notes = "",
+  }) async {
     try {
       /// 1. Decode + resize to max 1280
       final bytes = await imageFile.readAsBytes();
@@ -580,7 +636,13 @@ class Utils {
       Uint8List? compressed;
 
       while (quality >= 40) {
-        compressed = await FlutterImageCompress.compressWithFile(tempFile.path, quality: quality, minWidth: 1280, minHeight: 1280, format: CompressFormat.jpeg);
+        compressed = await FlutterImageCompress.compressWithFile(
+          tempFile.path,
+          quality: quality,
+          minWidth: 1280,
+          minHeight: 1280,
+          format: CompressFormat.jpeg,
+        );
 
         if (compressed == null) break;
 
@@ -712,7 +774,14 @@ class Utils {
     final rectHeight = totalTextHeight + (paddingY);
 
     final watermarkColor = img.ColorRgba8(0, 0, 0, 25); // black  opacity
-    img.fillRect(originalImage, x1: rectX, y1: rectY, x2: (rectX + rectWidth).toInt(), y2: rectY + rectHeight, color: watermarkColor);
+    img.fillRect(
+      originalImage,
+      x1: rectX,
+      y1: rectY,
+      x2: (rectX + rectWidth).toInt(),
+      y2: rectY + rectHeight,
+      color: watermarkColor,
+    );
 
     // Draw the white text on top of the background
     img.drawString(originalImage, text, font: font, x: leftPadding, y: yStart, color: textColor);
@@ -739,25 +808,6 @@ class Utils {
     return newImageFile.path;
   }
 
-  // static Future<void> showPermissionDialog({required BuildContext context}) async {
-  //   await showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return CustomAlertDialog(
-  //         isShowCancelBtn: true,
-  //         title: "Location Permission Required",
-  //         confirmText: "Open Settings",
-  //         content:
-  //             "Location permission has been permanently denied."
-  //             "Please enable it in the app settings to use this feature.",
-  //         onConfirm: () async {
-  //           await Geolocator.openAppSettings();
-  //         },
-  //       );
-  //     },
-  //   );
-  // }
-
   static Future<String> finalSubmitMethod({required int siteId, required int initId, required int siteEngId}) async {
     try {
       final String url = "${ApiUrls.baseUrl}/UpdateStatus";
@@ -765,17 +815,15 @@ class Utils {
       final selfieData = await DBHelper.getImagesBySiteId(siteId);
       final selfieImages = selfieData.where((item) => item.selectedCategoryTitle == "Selfie").toList();
       final unSyncImg = selfieData.where((i) => i.sync == 0).toList();
-
       if (selfieImages.isEmpty) {
         throw Exception("At least one selfie is required.");
       } else if (unSyncImg.isNotEmpty) {
         throw Exception("Please sync all images, before Final Submit.");
       }
-
       bool foundSurvey = false;
       bool hasUnfilledMandatory = false;
       Map<String, dynamic>? updatedFieldJsonStr;
-
+      dynamic updatedHomeData;
       final resultData = await DBHelper.getAllHomeData();
       for (var homeData in resultData) {
         for (var survey in homeData.surveyDetails!) {
@@ -790,35 +838,44 @@ class Utils {
             }
 
             if (hasUnfilledMandatory) {
-              throw Exception("Please fill survey details and Save it.");
+              throw Exception("Please Enter all the (*) mark required details, before Final Submit.");
             }
-            // Update siteEngAccepted
+
+            // Update values in memory only
             survey.basicDetails?.siteEngAccepted = 3;
             survey.basicDetails?.siteSubmitted = 1;
             survey.basicDetails?.visitDate = DateFormat('d MMM yyyy hh:mm:ss').format(DateTime.now());
-            // Prepare JSON and update local DB
+
             updatedFieldJsonStr = survey.toJson();
-            await DBHelper.updateHomeData(homeData);
+            updatedHomeData = homeData;
             break;
           }
         }
+        if (foundSurvey) break;
       }
-
       if (!foundSurvey) {
         throw Exception("Survey data not found for site ID $siteId");
       }
-
-      final Map<String, dynamic> jsonStrPayload = {"site_id": siteId, "init_id": initId, "site_engineer_id": siteEngId, "created_by": userId, "fieldJsonStr": updatedFieldJsonStr};
+      final Map<String, dynamic> jsonStrPayload = {
+        "site_id": siteId,
+        "init_id": initId,
+        "site_engineer_id": siteEngId,
+        "created_by": userId,
+        "fieldJsonStr": updatedFieldJsonStr,
+      };
       final Map<String, dynamic> bodyData = {"lookup": "SITE_ENG_FINAL_SUBMIT", "json_str": jsonEncode(jsonStrPayload)};
       final response = await ApiServices.postRequestWithAuth(url, bodyData);
-      logFullText("Body submitted data: ${jsonEncode(bodyData)}");
+      Utils.logFullText("Response data: $response");
+      Utils.logFullText("Body submitted data: ${jsonEncode(bodyData)}");
       if (response["status"] == "OK") {
+        // Update local database only after successful API response
+        await DBHelper.updateHomeData(updatedHomeData);
         return response["data"][0]["message"];
       } else {
         throw Exception(response["message"] ?? "Survey submission failed");
       }
     } catch (e) {
-      String errorMsg = e.toString().split(":").last;
+      String errorMsg = e.toString().split(":").last.trim();
       throw Exception(errorMsg);
     }
   }

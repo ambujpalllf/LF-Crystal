@@ -29,90 +29,128 @@ class SelfieCubit extends Cubit<SelfieState> {
     }
   }
 
-  void takePicture({required int siteId, required String imageSubTitle, required int index, required BuildContext context}) async {
-    emit(SelfieRefreshState(index: index));
-    if (_isPicking) return; // prevent multiple calls
-    _isPicking = true;
-    try {
-      // bool locationPemission = await Utils.checkLoactionPermission();
-      // if (!locationPemission) {
-      //   if (!context.mounted) return;
-      //   Utils.showPermissionDialog(context: context);
-      //   return;
-      // }
-      // bool gpsPemission = await Utils.checkGpsPermission();
-      // if (!gpsPemission) {
-      //   return;
-      // }
-      final permission = await CheckLocationPermission.checkPermissionGps(context: context);
-      if (!permission) return;
+  Future<void> takePicture({
+    required int siteId,
+    required String imageSubTitle,
+    required int index,
+    required BuildContext context,
+  }) async {
+    // Prevent multiple simultaneous calls
+    if (_isPicking) {
+      debugPrint("Selfie process is already running.");
+      return;
+    }
 
-      File? imagePath = await Utils.pickImage(source: ImageSource.camera, preferredCameraDevice: CameraDevice.front);
-      if (imagePath == null) {
+    _isPicking = true;
+
+    emit(SelfieRefreshState(index: index));
+
+    try {
+      // Check GPS and location permissions
+      final permission = await CheckLocationPermission.checkPermissionGps(
+        context: context,
+      ).timeout(const Duration(seconds: 20));
+
+      if (!permission) {
+        debugPrint("Location permission or GPS check failed.");
         return;
       }
-      final userId = await StorageFunction.readIntData(StorageKey.userId);
-      DateTime now = DateTime.now();
-      // Position? position = await Utils.getCurrentLocation();
-      LocationData position = await CheckLocationPermission.getCurrentLocation();
 
-      // if (position == null) {
-      //   return;
-      // }
-      ImageEntity imageData = ImageEntity(
-        imagePath: imagePath.path,
-        valueEmpId: userId!,
+      if (!context.mounted) return;
+
+      // Capture selfie
+      final File? imagePath = await Utils.pickImage(
+        source: ImageSource.camera,
+        preferredCameraDevice: CameraDevice.front,
+      );
+
+      if (imagePath == null) {
+        debugPrint("Image capture cancelled.");
+        return;
+      }
+
+      // Get user ID
+      final userId = await StorageFunction.readIntData(StorageKey.userId);
+
+      if (userId == null) {
+        emit(SelfieErrorState("User ID not found. Please log in again."));
+        return;
+      }
+
+      final DateTime now = DateTime.now();
+
+      // Get current location with timeout
+      final LocationData position = await CheckLocationPermission.getCurrentLocation().timeout(
+        const Duration(seconds: 20),
+      );
+
+      if (position.latitude == null || position.longitude == null) {
+        emit(SelfieErrorState("Unable to get your location. Please enable GPS and try again."));
+        return;
+      }
+
+      // Compress image
+      final File? compressedImage = await Utils.compressImageToTargetSize(imagePath, 400);
+
+      if (compressedImage == null) {
+        emit(SelfieErrorState("Unable to compress selfie. Please try again."));
+        return;
+      }
+
+      // Prepare image entity
+      final ImageEntity imageData = ImageEntity(
+        imagePath: compressedImage.path,
+        valueEmpId: userId,
         siteId: siteId,
         selectedCategoryTitle: "Selfie",
         selectedSubCategoryTitle: imageSubTitle,
-        // photoId: now.millisecond,
-        photoId: 0,
+        photoId: now.microsecondsSinceEpoch,
         serialOrder: 0,
         sync: 0,
         syncSerialOrder: 0,
         moDateTime: now,
         imgLatitude: position.latitude.toString(),
         imgLongitude: position.longitude.toString(),
-        imgAccuracy: position.accuracy.toString(),
+        imgAccuracy: position.accuracy?.toString() ?? "",
       );
+
       emit(SelfiePickedState(selfie: imageData, isProcessed: false, index: index));
-      File? newImg = await Utils.compressImageToTargetSize(imagePath, 400);
-      if (newImg == null) return;
 
-      // final appDir = await getApplicationDocumentsDirectory();
+      // Add location metadata to the compressed image
+      final File newPath = await Utils.addMetadataWithCanvas(
+        imageFile: compressedImage,
+        latitude: position.latitude!,
+        longitude: position.longitude!,
+        accuracy: position.accuracy ?? 0.0,
+        timestamp: now,
+        imageTitle: "Selfie",
+        imageSubTitle: imageSubTitle,
+      );
 
-      // // Compress picked image
-      // final cImage = await Utils.compressImageToTargetSize(newImg, 400);
-      // if (cImage == null) return;
+      // Update saved image path
+      final ImageEntity newImageData = imageData.copyWith(imagePath: newPath.path);
 
-      // // Parameters sent to isolate for metadata processing
-      // final params = {
-      //   'imagePath': cImage.path,
-      //   'latitude': position.latitude,
-      //   'longitude': position.longitude,
-      //   'accuracy': position.accuracy,
-      //   'imageTitle': "Selfie",
-      //   'imageSubTitle': imageSubTitle,
-      //   'timestampMillis': now.millisecondsSinceEpoch,
-      //   'appDirPath': appDir.path,
-      // };
+      emit(SelfiePickedState(selfie: newImageData, isProcessed: true, index: index));
 
-      // // Process metadata in isolate
-      // final newPath = await Isolate.run(() => Utils.addMetadataIsolate(params));
-      final newPath = await Utils.addMetadataWithCanvas(imageFile: imagePath, latitude: position.latitude ?? 0.0, longitude: position.longitude ?? 0.0, accuracy: position.accuracy ?? 0.0, timestamp: now, imageTitle: "Selfie", imageSubTitle: imageSubTitle);
-
-      ImageEntity newImageData = imageData.copyWith(imagePath: newPath.path);
-      emit(SelfiePickedState(selfie: newImageData, isProcessed: false, index: index));
+      // Save image to database
       await DBHelper.insertImage(newImageData);
+
+      // Refresh data
       fetchData(siteId);
-      // WorkManagerTaskRegister.selfieSync(imageData: newImageData, timestamp: now, userId: userId);
+
+      // Schedule synchronization
       WorkManagerTaskRegister.multiImageSync(siteId: siteId);
-    } catch (e) {
-      String result = e.toString().split(":")[1].trim();
-      debugPrint(result);
-      emit(SelfieErrorState(result));
+
+      debugPrint("Selfie saved successfully.");
+    } catch (e, stackTrace) {
+      debugPrint("Selfie error: $e");
+      debugPrintStack(stackTrace: stackTrace);
+
+      emit(SelfieErrorState(e.toString()));
     } finally {
+      // Always allow the user to retry
       _isPicking = false;
+      debugPrint("Selfie process finished. _isPicking = false");
     }
   }
 
@@ -139,7 +177,11 @@ class SelfieCubit extends Cubit<SelfieState> {
     }
   }
 
-  Future<void> updateSerialOrder({required ImageEntity imgData, required List<ImageEntity> images, required String serialOrder}) async {
+  Future<void> updateSerialOrder({
+    required ImageEntity imgData,
+    required List<ImageEntity> images,
+    required String serialOrder,
+  }) async {
     try {
       final url = "${ApiUrls.baseUrl}/${ApiUrls.updateSerialOrder}";
       final int? serialNumber = int.tryParse(serialOrder);

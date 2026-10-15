@@ -62,13 +62,13 @@ class OpenCaseCubit extends Cubit<OpenCaseState> {
       emit(OpenCaseLoadingState());
 
       //  Validate Required fields
-      final missingFields = updatedFields.where((field) => field.isMandatory == true && (field.value == null || field.value.toString().trim().isEmpty)).toList();
+      // final missingFields = updatedFields.where((field) => field.isMandatory == true && (field.value == null || field.value.toString().trim().isEmpty)).toList();
 
-      if (missingFields.isNotEmpty) {
-        final labels = missingFields.map((f) => f.label ?? '').join(', ');
-        emit(OpenCaseErrorState("$labels is required."));
-        return;
-      }
+      // if (missingFields.isNotEmpty) {
+      //   final labels = missingFields.map((f) => f.label ?? '').join(', ');
+      //   emit(OpenCaseErrorState("$labels is required."));
+      //   return;
+      // }
       final homeDataList = await DBHelper.getAllHomeData();
       if (homeDataList.isEmpty) {
         emit(OpenCaseErrorState("No data found."));
@@ -95,7 +95,10 @@ class OpenCaseCubit extends Cubit<OpenCaseState> {
       bool hasChanged = false;
 
       for (final newField in updatedFields) {
-        final oldField = existingFields.firstWhere((f) => f.name == newField.name, orElse: () => Field(name: "", value: null));
+        final oldField = existingFields.firstWhere(
+          (f) => f.name == newField.name,
+          orElse: () => Field(name: "", value: null),
+        );
 
         final oldValue = oldField.value?.toString().trim() ?? "";
         final newValue = newField.value?.toString().trim() ?? "";
@@ -130,7 +133,6 @@ class OpenCaseCubit extends Cubit<OpenCaseState> {
       debugPrint("Fields updated successfully for siteId $siteId");
       emit(OpenCaseSuccessState("Your changes have been saved successfully."));
       fetchOpenCaseBySiteId(siteId);
-      // saveDataToServerMehod(currentSurveyDetail);
       WorkManagerTaskRegister.syncDataToServer(updatedSurveyDetail: currentSurveyDetail);
     } catch (e) {
       String errorMsg = e.toString().split(":").last;

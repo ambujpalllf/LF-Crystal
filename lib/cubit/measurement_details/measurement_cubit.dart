@@ -251,25 +251,62 @@ class MeasurementCubit extends Cubit<MeasurementState> {
     }
   }
 
-  List<RoomDetails> parseMeasurementData(String value) {
-    final List<dynamic> jsonList = jsonDecode(value);
+  // List<RoomDetails> parseMeasurementData(String value) {
+  //   if (value.trim().isEmpty || value.trim() == "[]") {
+  //     return [];
+  //   }
+  //   final List<dynamic> jsonList = jsonDecode(value);
+  //   if (jsonList.isEmpty) {
+  //     return [];
+  //   }
+  //   return jsonList.map<RoomDetails>((outerItem) {
+  //     final Map<String, dynamic> outerMap = Map<String, dynamic>.from(outerItem);
 
-    return jsonList.map<RoomDetails>((outerItem) {
-      final Map<String, dynamic> outerMap = Map<String, dynamic>.from(outerItem);
+  //     final List<RoomDetailsBasic> roomBasicList = [];
 
-      final List<RoomDetailsBasic> roomBasicList = [];
+  //     // Sort keys so 0,1,2,3... remain in correct order
+  //     final keys = outerMap.keys.toList()..sort((a, b) => int.parse(a).compareTo(int.parse(b)));
 
-      // Sort keys so 0,1,2,3... remain in correct order
-      final keys = outerMap.keys.toList()..sort((a, b) => int.parse(a).compareTo(int.parse(b)));
+  //     for (final key in keys) {
+  //       final innerMap = Map<String, dynamic>.from(outerMap[key]);
 
-      for (final key in keys) {
-        final innerMap = Map<String, dynamic>.from(outerMap[key]);
+  //       roomBasicList.add(RoomDetailsBasic.fromJson(innerMap));
+  //     }
 
-        roomBasicList.add(RoomDetailsBasic.fromJson(innerMap));
+  //     return RoomDetails(data: roomBasicList);
+  //   }).toList();
+  // }
+  List<RoomDetails> parseMeasurementData(String? value) {
+    if (value == null || value.trim().isEmpty || value.trim() == "[]") {
+      return [];
+    }
+
+    try {
+      final decoded = jsonDecode(value);
+
+      if (decoded is! List || decoded.isEmpty) {
+        return [];
       }
 
-      return RoomDetails(data: roomBasicList);
-    }).toList();
+      return decoded.map<RoomDetails>((outerItem) {
+        final Map<String, dynamic> outerMap = Map<String, dynamic>.from(outerItem);
+
+        final List<RoomDetailsBasic> roomBasicList = [];
+
+        final keys = outerMap.keys.toList()..sort((a, b) => int.parse(a).compareTo(int.parse(b)));
+
+        for (final key in keys) {
+          final innerMap = Map<String, dynamic>.from(outerMap[key]);
+
+          roomBasicList.add(RoomDetailsBasic.fromJson(innerMap));
+        }
+
+        return RoomDetails(data: roomBasicList);
+      }).toList();
+    } catch (e) {
+      debugPrint("Failed to parse measurement data: $e");
+      return [];
+    }
   }
 
   String getValue(RoomDetails room, String label) {

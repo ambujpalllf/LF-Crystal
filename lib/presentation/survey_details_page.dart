@@ -97,19 +97,19 @@ class _SurveyDetailsPageState extends State<SurveyDetailsPage> with SingleTicker
                     OpenCaseFormPage(
                       siteId: widget.siteId,
                       initId: widget.initId,
-                      siteEngId: widget.siteId,
+                      siteEngId: widget.siteEngId,
                       siteSubmitted: widget.siteSubmitted,
                     ),
                     SelfiePage(
                       siteId: widget.siteId,
                       initId: widget.initId,
-                      siteEngId: widget.siteId,
+                      siteEngId: widget.siteEngId,
                       siteSubmitted: widget.siteSubmitted,
                     ),
                     PhotosPage(
                       siteId: widget.siteId,
                       initId: widget.initId,
-                      siteEngId: widget.siteId,
+                      siteEngId: widget.siteEngId,
                       siteSubmitted: widget.siteSubmitted,
                       bankId: widget.bankId,
                       applicantName: widget.applicantName,

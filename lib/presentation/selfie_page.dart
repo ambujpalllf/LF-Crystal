@@ -254,7 +254,7 @@ class _SelfiePageState extends State<SelfiePage> {
                                               ),
                                         );
                                       },
-                                      icon: Icon(Icons.close, color: Colors.black, size: 20),
+                                      icon: Icon(Icons.close, color: Colors.red, size: 20),
                                     ),
                                   ),
 

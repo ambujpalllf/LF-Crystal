@@ -8,4 +8,5 @@ class AppRoutesName {
   static const String imageViewPage = "/imageViewPage";
   static const String mapPage = "/mapPage";
   static const String measurementDetailsPage = "/measurementDetailsPage";
+  static const String consMonitoringPage = "/consMonitoringPage";
 }

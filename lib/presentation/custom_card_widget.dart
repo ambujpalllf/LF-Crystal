@@ -88,7 +88,12 @@ class _MyWidgetState extends State<CustomCardWidget> {
                         .where((i) => i.selectedCategoryTitle == "Selfie" && i.siteId == itemData.siteId!)
                         .toList();
                 return Card(
-                  color: itemData.siteSubmitted == 1 ? Colors.green.shade200 : AppColors.white,
+                  color:
+                      itemData.siteSubmitted == 1
+                          ? Colors.green.shade200
+                          : itemData.isFormSaved == true
+                          ? Colors.amber.shade100
+                          : AppColors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

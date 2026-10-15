@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lf_crystal/cubit/auth/login_cubit.dart';
+import 'package:lf_crystal/cubit/construction_monitoring/cons_monitoring_cubit.dart';
 import 'package:lf_crystal/cubit/map/map_cubit.dart';
 import 'package:lf_crystal/cubit/measurement_details/measurement_cubit.dart';
 import 'package:lf_crystal/cubit/splash/splash_cubit.dart';
+import 'package:lf_crystal/presentation/cons_monitoring_page.dart';
 import 'package:lf_crystal/presentation/home_page.dart';
 import 'package:lf_crystal/presentation/login_page.dart';
 import 'package:lf_crystal/presentation/map_page.dart';
@@ -60,6 +62,13 @@ class AppRoutes {
         return MaterialPageRoute(
           builder:
               (_) => BlocProvider(create: (context) => MeasurementCubit(), child: MeasurementDetailsPage(value: args)),
+        );
+      case AppRoutesName.consMonitoringPage:
+        final args = settings.arguments as String;
+        return MaterialPageRoute(
+          builder:
+              (_) =>
+                  BlocProvider(create: (context) => ConsMonitoringCubit(), child: ConsMonitoringPage(consValue: args)),
         );
       default:
         return MaterialPageRoute(
